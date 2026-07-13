@@ -164,7 +164,7 @@
     "audience": ["studio-only"],
     "has_guide": false,
     "guide_url": null,
-    "install_url": "https://github.com/hbconsulting00-sketch/hb-tools-hub/tree/main/skills/elearning",
+    "install_url": "https://github.com/hbconsulting00-sketch/hb-elearning-skill",
     "added_by": "admin"
   },
   {
@@ -176,7 +176,7 @@
     "audience": ["studio-only"],
     "has_guide": false,
     "guide_url": null,
-    "install_url": "https://github.com/hbconsulting00-sketch/hb-tools-hub/tree/main/skills/elearning-builder-4",
+    "install_url": "https://github.com/hbconsulting00-sketch/elearning-builder-4",
     "added_by": "admin"
   },
   {
@@ -224,7 +224,7 @@
     "audience": ["studio-only"],
     "has_guide": false,
     "guide_url": null,
-    "install_url": null,
+    "install_url": "https://github.com/hbconsulting00-sketch/hb-multiplayer-games",
     "added_by": "admin"
   },
   {
