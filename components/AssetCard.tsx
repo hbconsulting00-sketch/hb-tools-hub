@@ -12,6 +12,7 @@ export interface Asset {
   has_guide: boolean;
   guide_url?: string | null;
   install_url?: string | null;
+  template_url?: string | null;
   added_by: string;
 }
 
@@ -260,6 +261,23 @@ export function AssetCard({
             </button>
           )}
         </div>
+      )}
+
+      {/* ── TEMPLATE / SOURCE BUTTON ─────────────────────── */}
+      {asset.template_url && (
+        <a
+          href={asset.template_url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center justify-center gap-2 text-xs font-semibold py-2 px-4 rounded-xl border transition-all duration-200"
+          style={{ background: "rgba(59,130,246,0.08)", borderColor: "rgba(59,130,246,0.2)", color: "#93c5fd" }}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = "rgba(59,130,246,0.16)"; }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = "rgba(59,130,246,0.08)"; }}
+        >
+          <span>📦</span>
+          <span>{hasAccess ? "קוד מקור ב-GitHub" : "הורד תבנית מ-GitHub"}</span>
+          <span className="opacity-60">↗</span>
+        </a>
       )}
 
       {/* ── GUIDE BUTTON ─────────────────────────────────── */}
