@@ -53,7 +53,7 @@ export default async function Home({
   const params = await searchParams;
   const activeTab: TabKey = (params.tab as TabKey) ?? "instructors";
   const activeTabConfig = TABS.find((t) => t.key === activeTab)!;
-  const tabAssets = assets.filter((a) => a.audience.includes(activeTab));
+  const tabAssets = activeTab === "studio-only" ? assets : assets.filter((a) => a.audience.includes(activeTab));
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -86,7 +86,7 @@ export default async function Home({
       <nav className="px-6 pb-5 tabs-animate">
         <div className="max-w-5xl mx-auto flex gap-2.5 flex-wrap">
           {TABS.map((tab) => {
-            const count = assets.filter((a) => a.audience.includes(tab.key)).length;
+            const count = tab.key === "studio-only" ? assets.length : assets.filter((a) => a.audience.includes(tab.key)).length;
             const isActive = activeTab === tab.key;
             return (
               <a
@@ -131,7 +131,12 @@ export default async function Home({
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 card-grid">
             {tabAssets.map((asset) => (
-              <AssetCard key={asset.name} asset={asset} accentColor={activeTabConfig.color} />
+              <AssetCard
+                key={asset.name}
+                asset={asset}
+                accentColor={activeTabConfig.color}
+                isStudio={activeTab === "studio-only"}
+              />
             ))}
           </div>
         )}

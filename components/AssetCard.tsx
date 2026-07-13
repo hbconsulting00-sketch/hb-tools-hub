@@ -40,9 +40,11 @@ const TYPE_CONFIG = {
 export function AssetCard({
   asset,
   accentColor,
+  isStudio = false,
 }: {
   asset: Asset;
   accentColor: string;
+  isStudio?: boolean;
 }) {
   const [copied, setCopied] = useState(false);
   const [copiedPass, setCopiedPass] = useState(false);
@@ -263,8 +265,8 @@ export function AssetCard({
         </div>
       )}
 
-      {/* ── TEMPLATE / SOURCE BUTTON ─────────────────────── */}
-      {asset.template_url && (
+      {/* ── TEMPLATE / SOURCE BUTTON (studio only) ───────── */}
+      {isStudio && asset.template_url && (
         <a
           href={asset.template_url}
           target="_blank"
@@ -280,8 +282,8 @@ export function AssetCard({
         </a>
       )}
 
-      {/* ── GUIDE BUTTON ─────────────────────────────────── */}
-      {asset.has_guide && asset.guide_url && (
+      {/* ── GUIDE BUTTON (always visible) ────────────────── */}
+      {asset.has_guide && asset.guide_url ? (
         <a
           href={asset.guide_url}
           target="_blank"
@@ -295,6 +297,14 @@ export function AssetCard({
           <span>מדריך שימוש</span>
           <span className="opacity-60">↗</span>
         </a>
+      ) : (
+        <div
+          className="flex items-center justify-center gap-2 text-xs font-semibold py-2 px-4 rounded-xl border"
+          style={{ background: "var(--empty-bg)", borderColor: "var(--empty-border)", color: "var(--text-muted)", opacity: 0.5, cursor: "default" }}
+        >
+          <span>📖</span>
+          <span>מדריך שימוש</span>
+        </div>
       )}
     </div>
   );
