@@ -16,7 +16,7 @@
     "name": "Safety IL",
     "type": "tool",
     "description": "עוזר AI לבטיחות תעסוקתית, סגור לחקיקה הישראלית. שואלים בשפה חופשית — עונה מהנהלים.",
-    "access": "https://safety-il.onrender.com/",
+    "access": "https://hb-safety-legislation.vercel.app/",
     "access_note": null,
     "audience": ["instructors"],
     "has_guide": true,
