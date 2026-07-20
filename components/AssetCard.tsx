@@ -4,7 +4,7 @@ import { useState } from "react";
 
 export interface Asset {
   name: string;
-  type: "tool" | "skill" | "agent";
+  type: "tool" | "skill" | "agent" | "extension";
   description: string;
   access: string;
   access_note: string | null;
@@ -32,6 +32,12 @@ const TYPE_CONFIG = {
   skill: {
     label: "סקיל",
     labelBg: "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30",
+    btnLabel: null,
+    btnStyle: "",
+  },
+  extension: {
+    label: "תוסף",
+    labelBg: "bg-orange-500/20 text-orange-300 border border-orange-500/30",
     btnLabel: null,
     btnStyle: "",
   },
@@ -224,6 +230,68 @@ export function AssetCard({
         </div>
       )}
 
+      {/* ── EXTENSION BLOCK ──────────────────────────────── */}
+      {asset.type === "extension" && (
+        <div className="space-y-2.5">
+          {/* Download button */}
+          {asset.template_url && (
+            <a
+              href={asset.template_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-2 text-sm font-bold py-2.5 px-4 rounded-xl transition-all duration-200"
+              style={{ background: "rgba(249,115,22,0.18)", border: "1px solid rgba(249,115,22,0.35)", color: "#fdba74" }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = "rgba(249,115,22,0.28)"; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = "rgba(249,115,22,0.18)"; }}
+            >
+              <span>⬇️</span>
+              <span>הורד תוסף (ZIP)</span>
+            </a>
+          )}
+
+          {/* Install steps */}
+          <div
+            className="rounded-xl p-3 space-y-1.5"
+            style={{ background: "var(--step-bg)", border: "1px solid var(--empty-border)" }}
+          >
+            <p className="text-xs font-bold mb-2" style={{ color: "var(--text-muted)" }}>הוראות התקנה</p>
+            {[
+              { n: "1", t: "עשי אנזיפ לקובץ לתיקייה נגישה" },
+              { n: "2", t: "כנסי לכרום → chrome://extensions" },
+              { n: "3", t: 'הפעילי "Developer mode" (מצב מפתח)' },
+              { n: "4", t: 'לחצי "Load unpacked" ← בחרי את התיקייה' },
+            ].map((s) => (
+              <div key={s.n} className="flex items-start gap-2 text-xs" style={{ color: "var(--step-text)" }}>
+                <span
+                  className="shrink-0 w-4 h-4 rounded-full flex items-center justify-center text-xs font-bold mt-0.5"
+                  style={{ background: "rgba(249,115,22,0.2)", color: "#fdba74" }}
+                >
+                  {s.n}
+                </span>
+                <span>{s.t}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Link to README */}
+          {asset.install_url && (
+            <a
+              href={asset.install_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-1.5 text-xs py-1.5 px-3 rounded-lg transition-all"
+              style={{ background: "var(--empty-bg)", border: "1px solid var(--empty-border)", color: "var(--text-sec)" }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "#fdba74"; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "var(--text-sec)"; }}
+            >
+              <span>📄</span>
+              <span>הוראות מלאות ב-GitHub</span>
+              <span className="opacity-60">↗</span>
+            </a>
+          )}
+        </div>
+      )}
+
       {/* ── TOOL / AGENT BLOCK ───────────────────────────── */}
       {(asset.type === "tool" || asset.type === "agent") && (
         <div className="space-y-2">
@@ -265,8 +333,8 @@ export function AssetCard({
         </div>
       )}
 
-      {/* ── TEMPLATE / SOURCE BUTTON (studio only) ───────── */}
-      {isStudio && asset.template_url && (
+      {/* ── TEMPLATE / SOURCE BUTTON (studio only, not extension) ── */}
+      {isStudio && asset.template_url && asset.type !== "extension" && (
         <a
           href={asset.template_url}
           target="_blank"

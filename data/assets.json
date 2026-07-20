@@ -307,5 +307,42 @@
     "guide_url": null,
     "install_url": null,
     "added_by": "admin"
+  },
+  {
+    "name": "טלפרומפטר",
+    "type": "tool",
+    "description": "טלפרומפטר מקצועי עם הקלטה — ניהול טקסט, שליטה על מהירות, הקלטת וידאו ישירות מהדפדפן.",
+    "access": "https://telejoe.netlify.app/",
+    "access_note": null,
+    "audience": ["daily-shared", "studio-only"],
+    "has_guide": false,
+    "guide_url": null,
+    "install_url": null,
+    "added_by": "admin"
+  },
+  {
+    "name": "מתרגם מסמכים",
+    "type": "tool",
+    "description": "מתרגם קבצי PDF ומסמכים בשלמותם — שומר על עיצוב המקור ומייצר קובץ מתורגם להורדה.",
+    "access": "https://mytranslatorpdf.netlify.app/",
+    "access_note": null,
+    "audience": ["daily-shared", "studio-only"],
+    "has_guide": false,
+    "guide_url": null,
+    "install_url": null,
+    "added_by": "admin"
+  },
+  {
+    "name": "Hebrew RTL Fixer",
+    "type": "extension",
+    "description": "תוסף כרום שמתקן כיווניות טקסט עברי בכל אתר — כולל Claude. לחיצה אחת על Fix RTL מיישרת את כל הטקסט בדף.",
+    "access": "",
+    "access_note": null,
+    "audience": ["daily-shared", "studio-only"],
+    "has_guide": false,
+    "guide_url": null,
+    "install_url": "https://github.com/hbconsulting00-sketch/rtl-fixer-extension",
+    "template_url": "https://github.com/hbconsulting00-sketch/rtl-fixer-extension/raw/main/rtl-fixer-extension.zip",
+    "added_by": "admin"
   }
 ]
