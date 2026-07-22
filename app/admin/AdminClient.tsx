@@ -90,14 +90,17 @@ export function AdminClient({
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ password, target, data }),
       });
+      let result: Record<string, string> = {};
+      try { result = await res.json(); } catch { /* non-json body */ }
       if (res.ok) {
         setSaveMsg({ ok: true, text: "✅ נשמר ב-GitHub! האתר יתעדכן תוך ~1-2 דקות" });
         setDirty((d) => { const n = new Set(d); n.delete(target); return n; });
       } else {
-        const err = await res.json();
-        setSaveMsg({ ok: false, text: `❌ ${err.error || "שגיאה"}` });
+        setSaveMsg({ ok: false, text: `❌ ${result.error || `שגיאה ${res.status}`}` });
       }
-    } catch { setSaveMsg({ ok: false, text: "❌ שגיאת חיבור" }); }
+    } catch (err) {
+      setSaveMsg({ ok: false, text: `❌ שגיאת חיבור: ${err}` });
+    }
     setSaving(false);
   }
 

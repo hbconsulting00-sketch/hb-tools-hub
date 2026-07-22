@@ -10,56 +10,65 @@ const FILE_MAP: Record<string, string> = {
 };
 
 export async function POST(req: NextRequest) {
-  const { password, target, data } = await req.json();
+  try {
+    const body = await req.json();
+    const { password, target, data } = body;
 
-  if (password !== process.env.ADMIN_PASSWORD) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const filePath = FILE_MAP[target];
-  if (!filePath) {
-    return NextResponse.json({ error: `Unknown target: ${target}` }, { status: 400 });
-  }
-
-  const token = process.env.GITHUB_TOKEN;
-  if (!token) {
-    return NextResponse.json({ error: "GITHUB_TOKEN not configured" }, { status: 500 });
-  }
-
-  // Get current file SHA
-  const fileRes = await fetch(
-    `https://api.github.com/repos/${OWNER}/${REPO}/contents/${filePath}`,
-    { headers: { Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json" } }
-  );
-  if (!fileRes.ok) {
-    return NextResponse.json({ error: "Failed to read file from GitHub" }, { status: 500 });
-  }
-  const fileData = await fileRes.json();
-
-  // Commit updated file to GitHub
-  const content = Buffer.from(JSON.stringify(data, null, 2) + "\n").toString("base64");
-  const updateRes = await fetch(
-    `https://api.github.com/repos/${OWNER}/${REPO}/contents/${filePath}`,
-    {
-      method: "PUT",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-        Accept: "application/vnd.github+json",
-      },
-      body: JSON.stringify({
-        message: `Admin: update ${target} via HB Tools Hub`,
-        content,
-        sha: fileData.sha,
-        committer: { name: "HB Admin", email: "admin@hb-tools.app" },
-      }),
+    if (password !== process.env.ADMIN_PASSWORD) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-  );
 
-  if (!updateRes.ok) {
-    const err = await updateRes.json();
-    return NextResponse.json({ error: err.message || "GitHub update failed" }, { status: 500 });
+    const filePath = FILE_MAP[target as string];
+    if (!filePath) {
+      return NextResponse.json({ error: `Unknown target: ${target}` }, { status: 400 });
+    }
+
+    const token = process.env.GITHUB_TOKEN;
+    if (!token) {
+      return NextResponse.json({ error: "GITHUB_TOKEN not configured" }, { status: 500 });
+    }
+
+    // Get current file SHA
+    const fileRes = await fetch(
+      `https://api.github.com/repos/${OWNER}/${REPO}/contents/${filePath}`,
+      { headers: { Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json" } }
+    );
+    if (!fileRes.ok) {
+      const ghErr = await fileRes.text();
+      return NextResponse.json({ error: `GitHub read failed (${fileRes.status}): ${ghErr}` }, { status: 500 });
+    }
+    const fileData = await fileRes.json() as { sha: string };
+
+    // Encode and commit
+    const jsonStr = JSON.stringify(data, null, 2) + "\n";
+    const encoded = btoa(unescape(encodeURIComponent(jsonStr)));
+
+    const updateRes = await fetch(
+      `https://api.github.com/repos/${OWNER}/${REPO}/contents/${filePath}`,
+      {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+          Accept: "application/vnd.github+json",
+        },
+        body: JSON.stringify({
+          message: `Admin: update ${target}`,
+          content: encoded,
+          sha: fileData.sha,
+          committer: { name: "HB Admin", email: "admin@hb-tools.app" },
+        }),
+      }
+    );
+
+    if (!updateRes.ok) {
+      const ghErr = await updateRes.text();
+      return NextResponse.json({ error: `GitHub write failed (${updateRes.status}): ${ghErr}` }, { status: 500 });
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (err) {
+    console.error("Admin API unhandled error:", err);
+    return NextResponse.json({ error: `Server error: ${String(err)}` }, { status: 500 });
   }
-
-  return NextResponse.json({ success: true });
 }
