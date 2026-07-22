@@ -1,5 +1,5 @@
-import { kv } from "@vercel/kv";
 import { NextRequest, NextResponse } from "next/server";
+import { redis } from "@/lib/redis";
 
 const VALID_TARGETS = ["assets", "tabs", "settings"] as const;
 type Target = (typeof VALID_TARGETS)[number];
@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: `Unknown target: ${target}` }, { status: 400 });
     }
 
-    await kv.set(target as Target, data);
+    await redis.set(target as Target, JSON.stringify(data));
 
     return NextResponse.json({ success: true });
   } catch (err) {
