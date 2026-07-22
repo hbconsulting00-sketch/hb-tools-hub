@@ -2,23 +2,33 @@ import { NextRequest, NextResponse } from "next/server";
 
 const OWNER = "hbconsulting00-sketch";
 const REPO = "hb-tools-hub";
-const FILE_PATH = "data/assets.json";
+
+const FILE_MAP: Record<string, string> = {
+  assets:   "data/assets.json",
+  tabs:     "data/tabs.json",
+  settings: "data/settings.json",
+};
 
 export async function POST(req: NextRequest) {
-  const { password, assets } = await req.json();
+  const { password, target, data } = await req.json();
 
   if (password !== process.env.ADMIN_PASSWORD) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const token = process.env.GITHUB_TOKEN;
-  if (!token) {
-    return NextResponse.json({ error: "GITHUB_TOKEN env var not configured" }, { status: 500 });
+  const filePath = FILE_MAP[target];
+  if (!filePath) {
+    return NextResponse.json({ error: `Unknown target: ${target}` }, { status: 400 });
   }
 
-  // Fetch current file SHA (required for GitHub update API)
+  const token = process.env.GITHUB_TOKEN;
+  if (!token) {
+    return NextResponse.json({ error: "GITHUB_TOKEN not configured" }, { status: 500 });
+  }
+
+  // Get current file SHA
   const fileRes = await fetch(
-    `https://api.github.com/repos/${OWNER}/${REPO}/contents/${FILE_PATH}`,
+    `https://api.github.com/repos/${OWNER}/${REPO}/contents/${filePath}`,
     { headers: { Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json" } }
   );
   if (!fileRes.ok) {
@@ -26,10 +36,10 @@ export async function POST(req: NextRequest) {
   }
   const fileData = await fileRes.json();
 
-  // Commit updated assets.json back to GitHub
-  const content = Buffer.from(JSON.stringify(assets, null, 2) + "\n").toString("base64");
+  // Commit updated file to GitHub
+  const content = Buffer.from(JSON.stringify(data, null, 2) + "\n").toString("base64");
   const updateRes = await fetch(
-    `https://api.github.com/repos/${OWNER}/${REPO}/contents/${FILE_PATH}`,
+    `https://api.github.com/repos/${OWNER}/${REPO}/contents/${filePath}`,
     {
       method: "PUT",
       headers: {
@@ -38,7 +48,7 @@ export async function POST(req: NextRequest) {
         Accept: "application/vnd.github+json",
       },
       body: JSON.stringify({
-        message: "Admin: update assets via HB Tools Hub",
+        message: `Admin: update ${target} via HB Tools Hub`,
         content,
         sha: fileData.sha,
         committer: { name: "HB Admin", email: "admin@hb-tools.app" },

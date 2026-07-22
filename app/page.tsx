@@ -1,49 +1,13 @@
 import { AssetCard, Asset } from "@/components/AssetCard";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { COLOR_PRESETS, TabConfig } from "@/lib/tabPresets";
 import assetsData from "@/data/assets.json";
+import tabsData from "@/data/tabs.json";
+import settingsData from "@/data/settings.json";
 
 const assets = assetsData as Asset[];
-
-const TABS = [
-  {
-    key: "instructors",
-    label: "כלי מדריכים",
-    emoji: "🎓",
-    color: "from-green-500 to-emerald-600",
-    glowClass: "tab-glow-instructors",
-    bg: "bg-green-500/20 hover:bg-green-500/30 border border-green-500/40",
-    activeBg: "bg-gradient-to-l from-green-500 to-emerald-600 border-transparent",
-  },
-  {
-    key: "management",
-    label: "הנהלה",
-    emoji: "📊",
-    color: "from-indigo-500 to-violet-600",
-    glowClass: "tab-glow-management",
-    bg: "bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-500/40",
-    activeBg: "bg-gradient-to-l from-indigo-500 to-violet-600 border-transparent",
-  },
-  {
-    key: "daily-shared",
-    label: "יומיומי",
-    emoji: "⚡",
-    color: "from-amber-400 to-orange-500",
-    glowClass: "tab-glow-daily",
-    bg: "bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40",
-    activeBg: "bg-gradient-to-l from-amber-400 to-orange-500 border-transparent",
-  },
-  {
-    key: "studio-only",
-    label: "סטודיו",
-    emoji: "🛠",
-    color: "from-rose-500 to-pink-600",
-    glowClass: "tab-glow-studio",
-    bg: "bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/40",
-    activeBg: "bg-gradient-to-l from-rose-500 to-pink-600 border-transparent",
-  },
-] as const;
-
-type TabKey = (typeof TABS)[number]["key"];
+const tabs = tabsData as TabConfig[];
+const settings = settingsData as { siteTitle: string; siteSubtitle: string };
 
 export default async function Home({
   searchParams,
@@ -51,9 +15,13 @@ export default async function Home({
   searchParams: Promise<{ tab?: string }>;
 }) {
   const params = await searchParams;
-  const activeTab: TabKey = (params.tab as TabKey) ?? "instructors";
-  const activeTabConfig = TABS.find((t) => t.key === activeTab)!;
-  const tabAssets = activeTab === "studio-only" ? assets : assets.filter((a) => a.audience.includes(activeTab));
+  const activeTabKey = params.tab ?? tabs[0]?.key ?? "";
+  const activeTab = tabs.find((t) => t.key === activeTabKey) ?? tabs[0];
+  const activePreset = COLOR_PRESETS[activeTab.colorPreset];
+
+  const tabAssets = activeTab.showAll
+    ? assets
+    : assets.filter((a) => a.audience.includes(activeTab.key));
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -61,7 +29,6 @@ export default async function Home({
       {/* Header */}
       <header className="px-6 pt-7 pb-5 header-animate">
         <div className="max-w-5xl mx-auto flex items-center justify-between gap-4">
-          {/* Logo + Title */}
           <div className="flex items-center gap-3.5 min-w-0">
             <div className="logo-badge">HB</div>
             <div className="min-w-0">
@@ -69,15 +36,13 @@ export default async function Home({
                 className="text-xl font-bold tracking-tight leading-tight truncate"
                 style={{ color: "var(--page-text)" }}
               >
-                HB Tools Hub
+                {settings.siteTitle}
               </h1>
               <p className="text-xs mt-0.5 truncate" style={{ color: "var(--text-sec)" }}>
-                מרכז הכלים הפנימי
+                {settings.siteSubtitle}
               </p>
             </div>
           </div>
-
-          {/* Theme toggle */}
           <ThemeToggle />
         </div>
       </header>
@@ -85,17 +50,20 @@ export default async function Home({
       {/* Tab bar */}
       <nav className="px-6 pb-5 tabs-animate">
         <div className="max-w-5xl mx-auto flex gap-2.5 flex-wrap">
-          {TABS.map((tab) => {
-            const count = tab.key === "studio-only" ? assets.length : assets.filter((a) => a.audience.includes(tab.key)).length;
-            const isActive = activeTab === tab.key;
+          {tabs.map((tab) => {
+            const preset = COLOR_PRESETS[tab.colorPreset];
+            const count = tab.showAll
+              ? assets.length
+              : assets.filter((a) => a.audience.includes(tab.key)).length;
+            const isActive = activeTab.key === tab.key;
             return (
               <a
                 key={tab.key}
                 href={`?tab=${tab.key}`}
                 className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-sm font-bold whitespace-nowrap transition-all duration-200 ${
                   isActive
-                    ? `${tab.activeBg} text-white ${tab.glowClass}`
-                    : `${tab.bg} text-slate-300 tab-inactive-text`
+                    ? `${preset.activeBg} text-white ${preset.glowClass}`
+                    : `${preset.bg} text-slate-300 tab-inactive-text`
                 }`}
               >
                 <span className="text-base">{tab.emoji}</span>
@@ -113,9 +81,9 @@ export default async function Home({
         </div>
       </nav>
 
-      {/* Active-tab accent line */}
+      {/* Accent line */}
       <div
-        className={`mx-6 mb-7 h-px bg-gradient-to-l ${activeTabConfig.color} max-w-5xl`}
+        className={`mx-6 mb-7 h-px bg-gradient-to-l ${activePreset.color} max-w-5xl`}
         style={{ marginLeft: "auto", marginRight: "auto", opacity: "var(--divider-opacity)" }}
       />
 
@@ -134,8 +102,8 @@ export default async function Home({
               <AssetCard
                 key={asset.name}
                 asset={asset}
-                accentColor={activeTabConfig.color}
-                isStudio={activeTab === "studio-only"}
+                accentColor={activePreset.color}
+                isStudio={activeTab.showAll ?? false}
               />
             ))}
           </div>
@@ -145,10 +113,7 @@ export default async function Home({
       {/* Footer */}
       <footer
         className="text-center text-xs py-5 border-t"
-        style={{
-          color: "var(--footer-text)",
-          borderColor: "var(--footer-border)",
-        }}
+        style={{ color: "var(--footer-text)", borderColor: "var(--footer-border)" }}
       >
         HB Consulting &copy; {new Date().getFullYear()}
       </footer>

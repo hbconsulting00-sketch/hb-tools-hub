@@ -199,15 +199,31 @@ body > * { position: relative; z-index: 1; }
 /* ================================================================
    TAB GLOW EFFECTS
    ================================================================ */
-.tab-glow-instructors { box-shadow: 0 0 22px rgba(34, 197, 94, 0.6),  0 0 50px rgba(34, 197, 94, 0.18); }
-.tab-glow-management  { box-shadow: 0 0 22px rgba(99, 102, 241, 0.6), 0 0 50px rgba(99, 102, 241, 0.18); }
-.tab-glow-daily       { box-shadow: 0 0 22px rgba(251, 191, 36, 0.6), 0 0 50px rgba(251, 191, 36, 0.18); }
-.tab-glow-studio      { box-shadow: 0 0 22px rgba(244, 63, 94, 0.6),  0 0 50px rgba(244, 63, 94, 0.18); }
+.tab-glow-instructors,
+.tab-glow-green  { box-shadow: 0 0 22px rgba(34, 197, 94, 0.6),  0 0 50px rgba(34, 197, 94, 0.18); }
+.tab-glow-management,
+.tab-glow-indigo { box-shadow: 0 0 22px rgba(99, 102, 241, 0.6), 0 0 50px rgba(99, 102, 241, 0.18); }
+.tab-glow-daily,
+.tab-glow-amber  { box-shadow: 0 0 22px rgba(251, 191, 36, 0.6), 0 0 50px rgba(251, 191, 36, 0.18); }
+.tab-glow-studio,
+.tab-glow-rose   { box-shadow: 0 0 22px rgba(244, 63, 94, 0.6),  0 0 50px rgba(244, 63, 94, 0.18); }
+.tab-glow-sky    { box-shadow: 0 0 22px rgba(14, 165, 233, 0.6),  0 0 50px rgba(14, 165, 233, 0.18); }
+.tab-glow-teal   { box-shadow: 0 0 22px rgba(20, 184, 166, 0.6),  0 0 50px rgba(20, 184, 166, 0.18); }
+.tab-glow-violet { box-shadow: 0 0 22px rgba(139, 92, 246, 0.6),  0 0 50px rgba(139, 92, 246, 0.18); }
+.tab-glow-orange { box-shadow: 0 0 22px rgba(249, 115, 22, 0.6),  0 0 50px rgba(249, 115, 22, 0.18); }
 
-html.light .tab-glow-instructors { box-shadow: 0 4px 18px rgba(34, 197, 94, 0.38); }
-html.light .tab-glow-management  { box-shadow: 0 4px 18px rgba(99, 102, 241, 0.38); }
-html.light .tab-glow-daily       { box-shadow: 0 4px 18px rgba(251, 191, 36, 0.38); }
-html.light .tab-glow-studio      { box-shadow: 0 4px 18px rgba(244, 63, 94, 0.38); }
+html.light .tab-glow-instructors,
+html.light .tab-glow-green  { box-shadow: 0 4px 18px rgba(34, 197, 94, 0.38); }
+html.light .tab-glow-management,
+html.light .tab-glow-indigo { box-shadow: 0 4px 18px rgba(99, 102, 241, 0.38); }
+html.light .tab-glow-daily,
+html.light .tab-glow-amber  { box-shadow: 0 4px 18px rgba(251, 191, 36, 0.38); }
+html.light .tab-glow-studio,
+html.light .tab-glow-rose   { box-shadow: 0 4px 18px rgba(244, 63, 94, 0.38); }
+html.light .tab-glow-sky    { box-shadow: 0 4px 18px rgba(14, 165, 233, 0.38); }
+html.light .tab-glow-teal   { box-shadow: 0 4px 18px rgba(20, 184, 166, 0.38); }
+html.light .tab-glow-violet { box-shadow: 0 4px 18px rgba(139, 92, 246, 0.38); }
+html.light .tab-glow-orange { box-shadow: 0 4px 18px rgba(249, 115, 22, 0.38); }
 
 /* ================================================================
    THEME TOGGLE BUTTON

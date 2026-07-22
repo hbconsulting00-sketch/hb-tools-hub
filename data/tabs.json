@@ -1,0 +1,6 @@
+[
+  { "key": "instructors", "label": "כלי מדריכים", "emoji": "🎓", "colorPreset": "green",  "showAll": false },
+  { "key": "management",  "label": "הנהלה",       "emoji": "📊", "colorPreset": "indigo", "showAll": false },
+  { "key": "daily-shared","label": "יומיומי",     "emoji": "⚡", "colorPreset": "amber",  "showAll": false },
+  { "key": "studio-only", "label": "סטודיו",      "emoji": "🛠", "colorPreset": "rose",   "showAll": true  }
+]
