@@ -9,13 +9,13 @@ import { TabConfig } from "@/lib/tabPresets";
 export const dynamic = "force-dynamic";
 
 export default async function AdminPage() {
-  const assetsRaw   = await redis.get<string | Asset[]>("assets");
-  const tabsRaw     = await redis.get<string | TabConfig[]>("tabs");
-  const settingsRaw = await redis.get<string | { siteTitle: string; siteSubtitle: string }>("settings");
+  const assetsRaw   = await redis.get<string>("assets");
+  const tabsRaw     = await redis.get<string>("tabs");
+  const settingsRaw = await redis.get<string>("settings");
 
-  const assets   = (typeof assetsRaw   === "string" ? JSON.parse(assetsRaw)   : assetsRaw)   ?? (assetsDefault   as Asset[]);
-  const tabs     = (typeof tabsRaw     === "string" ? JSON.parse(tabsRaw)     : tabsRaw)     ?? (tabsDefault     as TabConfig[]);
-  const settings = (typeof settingsRaw === "string" ? JSON.parse(settingsRaw) : settingsRaw) ?? (settingsDefault as { siteTitle: string; siteSubtitle: string });
+  const assets   = (assetsRaw   ? JSON.parse(assetsRaw)   : null) as Asset[]                                    ?? (assetsDefault   as Asset[]);
+  const tabs     = (tabsRaw     ? JSON.parse(tabsRaw)     : null) as TabConfig[]                                ?? (tabsDefault     as TabConfig[]);
+  const settings = (settingsRaw ? JSON.parse(settingsRaw) : null) as { siteTitle: string; siteSubtitle: string } ?? (settingsDefault as { siteTitle: string; siteSubtitle: string });
 
   return (
     <AdminClient
