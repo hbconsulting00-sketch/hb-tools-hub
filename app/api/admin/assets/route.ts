@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { redis } from "@/lib/redis";
+import { redisSet } from "@/lib/redis";
 
 const VALID_TARGETS = ["assets", "tabs", "settings"] as const;
 type Target = (typeof VALID_TARGETS)[number];
@@ -16,11 +16,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: `Unknown target: ${target}` }, { status: 400 });
     }
 
-    await redis.set(target as Target, JSON.stringify(data));
+    const ok = await redisSet(target, data);
+    if (!ok) {
+      return NextResponse.json({ error: "Redis not configured or write failed" }, { status: 500 });
+    }
 
     return NextResponse.json({ success: true });
   } catch (err) {
-    console.error("Admin API error:", err);
     return NextResponse.json({ error: `Server error: ${String(err)}` }, { status: 500 });
   }
 }

@@ -4,7 +4,7 @@ import { COLOR_PRESETS, TabConfig } from "@/lib/tabPresets";
 import assetsDefault from "@/data/assets.json";
 import tabsDefault from "@/data/tabs.json";
 import settingsDefault from "@/data/settings.json";
-import { redis } from "@/lib/redis";
+import { redisGet } from "@/lib/redis";
 
 export const dynamic = "force-dynamic";
 
@@ -15,22 +15,17 @@ export default async function Home({
 }) {
   const params = await searchParams;
 
-  // Read live data from Redis, fall back to static JSON
-  const assetsRaw   = await redis.get<string>("assets");
-  const tabsRaw     = await redis.get<string>("tabs");
-  const settingsRaw = await redis.get<string>("settings");
-
-  const assets   = (assetsRaw   ? JSON.parse(assetsRaw)   : null) as Asset[]                              ?? (assetsDefault   as Asset[]);
-  const tabs     = (tabsRaw     ? JSON.parse(tabsRaw)     : null) as TabConfig[]                          ?? (tabsDefault     as TabConfig[]);
-  const settings = (settingsRaw ? JSON.parse(settingsRaw) : null) as { siteTitle: string; siteSubtitle: string } ?? (settingsDefault as { siteTitle: string; siteSubtitle: string });
+  const assets   = (await redisGet<Asset[]>("assets"))                              ?? (assetsDefault   as Asset[]);
+  const tabs     = (await redisGet<TabConfig[]>("tabs"))                            ?? (tabsDefault     as TabConfig[]);
+  const settings = (await redisGet<{ siteTitle: string; siteSubtitle: string }>("settings")) ?? (settingsDefault as { siteTitle: string; siteSubtitle: string });
 
   const activeTabKey = params.tab ?? tabs[0]?.key ?? "";
-  const activeTab    = tabs.find((t: TabConfig) => t.key === activeTabKey) ?? tabs[0];
+  const activeTab    = tabs.find((t) => t.key === activeTabKey) ?? tabs[0];
   const activePreset = COLOR_PRESETS[activeTab.colorPreset];
 
   const tabAssets = activeTab.showAll
     ? assets
-    : assets.filter((a: Asset) => a.audience.includes(activeTab.key));
+    : assets.filter((a) => a.audience.includes(activeTab.key));
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -63,26 +58,20 @@ export default async function Home({
       {/* Tab bar */}
       <nav className="px-6 pb-5 tabs-animate">
         <div className="max-w-5xl mx-auto flex gap-2.5 flex-wrap">
-          {tabs.map((tab: TabConfig) => {
-            const preset = COLOR_PRESETS[tab.colorPreset];
-            const count  = tab.showAll
-              ? assets.length
-              : assets.filter((a: Asset) => a.audience.includes(tab.key)).length;
+          {tabs.map((tab) => {
+            const preset  = COLOR_PRESETS[tab.colorPreset];
+            const count   = tab.showAll ? assets.length : assets.filter((a) => a.audience.includes(tab.key)).length;
             const isActive = activeTab.key === tab.key;
             return (
               <a key={tab.key} href={`?tab=${tab.key}`}
                 className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-sm font-bold whitespace-nowrap transition-all duration-200 ${
-                  isActive
-                    ? `${preset.activeBg} text-white ${preset.glowClass}`
-                    : `${preset.bg} text-slate-300 tab-inactive-text`
+                  isActive ? `${preset.activeBg} text-white ${preset.glowClass}` : `${preset.bg} text-slate-300 tab-inactive-text`
                 }`}>
                 <span className="text-base">{tab.emoji}</span>
                 <span>{tab.label}</span>
                 <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${
                   isActive ? "bg-white/25 text-white" : "bg-white/10 text-slate-400 tab-count-inactive"
-                }`}>
-                  {count}
-                </span>
+                }`}>{count}</span>
               </a>
             );
           })}
@@ -98,22 +87,17 @@ export default async function Home({
         {tabAssets.length === 0 ? (
           <div className="text-center py-24">
             <div className="text-5xl mb-4">📭</div>
-            <p className="text-lg font-semibold" style={{ color: "var(--text-sec)" }}>
-              אין כלים בקטגוריה זו עדיין
-            </p>
+            <p className="text-lg font-semibold" style={{ color: "var(--text-sec)" }}>אין כלים בקטגוריה זו עדיין</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 card-grid">
-            {tabAssets.map((asset: Asset) => (
-              <AssetCard key={asset.name} asset={asset}
-                accentColor={activePreset.color}
-                isStudio={activeTab.showAll ?? false} />
+            {tabAssets.map((asset) => (
+              <AssetCard key={asset.name} asset={asset} accentColor={activePreset.color} isStudio={activeTab.showAll ?? false} />
             ))}
           </div>
         )}
       </main>
 
-      {/* Footer */}
       <footer className="text-center text-xs py-5 border-t"
         style={{ color: "var(--footer-text)", borderColor: "var(--footer-border)" }}>
         HB Consulting &copy; {new Date().getFullYear()}

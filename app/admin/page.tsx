@@ -1,4 +1,4 @@
-import { redis } from "@/lib/redis";
+import { redisGet } from "@/lib/redis";
 import { AdminClient } from "./AdminClient";
 import assetsDefault from "@/data/assets.json";
 import tabsDefault from "@/data/tabs.json";
@@ -9,19 +9,9 @@ import { TabConfig } from "@/lib/tabPresets";
 export const dynamic = "force-dynamic";
 
 export default async function AdminPage() {
-  const assetsRaw   = await redis.get<string>("assets");
-  const tabsRaw     = await redis.get<string>("tabs");
-  const settingsRaw = await redis.get<string>("settings");
+  const assets   = (await redisGet<Asset[]>("assets"))                                       ?? (assetsDefault   as Asset[]);
+  const tabs     = (await redisGet<TabConfig[]>("tabs"))                                     ?? (tabsDefault     as TabConfig[]);
+  const settings = (await redisGet<{ siteTitle: string; siteSubtitle: string }>("settings")) ?? (settingsDefault as { siteTitle: string; siteSubtitle: string });
 
-  const assets   = (assetsRaw   ? JSON.parse(assetsRaw)   : null) as Asset[]                                    ?? (assetsDefault   as Asset[]);
-  const tabs     = (tabsRaw     ? JSON.parse(tabsRaw)     : null) as TabConfig[]                                ?? (tabsDefault     as TabConfig[]);
-  const settings = (settingsRaw ? JSON.parse(settingsRaw) : null) as { siteTitle: string; siteSubtitle: string } ?? (settingsDefault as { siteTitle: string; siteSubtitle: string });
-
-  return (
-    <AdminClient
-      initialAssets={assets}
-      initialTabs={tabs}
-      initialSettings={settings}
-    />
-  );
+  return <AdminClient initialAssets={assets} initialTabs={tabs} initialSettings={settings} />;
 }
