@@ -39,9 +39,10 @@ export async function POST(req: NextRequest) {
     }
     const fileData = await fileRes.json() as { sha: string };
 
-    // Encode and commit
+    // Encode as UTF-8 bytes → binary string → base64 (handles Hebrew)
     const jsonStr = JSON.stringify(data, null, 2) + "\n";
-    const encoded = btoa(unescape(encodeURIComponent(jsonStr)));
+    const bytes = new TextEncoder().encode(jsonStr);
+    const encoded = btoa(Array.from(bytes, (b) => String.fromCharCode(b)).join(""));
 
     const updateRes = await fetch(
       `https://api.github.com/repos/${OWNER}/${REPO}/contents/${filePath}`,
