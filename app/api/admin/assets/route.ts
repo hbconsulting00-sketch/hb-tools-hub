@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+export const runtime = "nodejs";
 
 const OWNER = "hbconsulting00-sketch";
 const REPO = "hb-tools-hub";
@@ -39,10 +40,9 @@ export async function POST(req: NextRequest) {
     }
     const fileData = await fileRes.json() as { sha: string };
 
-    // Encode as UTF-8 bytes → binary string → base64 (handles Hebrew)
+    // Buffer.from handles all Unicode including Hebrew (Node.js runtime)
     const jsonStr = JSON.stringify(data, null, 2) + "\n";
-    const bytes = new TextEncoder().encode(jsonStr);
-    const encoded = btoa(Array.from(bytes, (b) => String.fromCharCode(b)).join(""));
+    const encoded = Buffer.from(jsonStr, "utf8").toString("base64");
 
     const updateRes = await fetch(
       `https://api.github.com/repos/${OWNER}/${REPO}/contents/${filePath}`,
