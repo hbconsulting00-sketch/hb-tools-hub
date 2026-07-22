@@ -1,16 +1,25 @@
+import { kv } from "@vercel/kv";
 import { AdminClient } from "./AdminClient";
-import assetsData from "@/data/assets.json";
-import tabsData from "@/data/tabs.json";
-import settingsData from "@/data/settings.json";
+import assetsDefault from "@/data/assets.json";
+import tabsDefault from "@/data/tabs.json";
+import settingsDefault from "@/data/settings.json";
 import { Asset } from "@/components/AssetCard";
 import { TabConfig } from "@/lib/tabPresets";
 
-export default function AdminPage() {
+export default async function AdminPage() {
+  const assets =
+    (await kv.get<Asset[]>("assets")) ?? (assetsDefault as Asset[]);
+  const tabs =
+    (await kv.get<TabConfig[]>("tabs")) ?? (tabsDefault as TabConfig[]);
+  const settings =
+    (await kv.get<{ siteTitle: string; siteSubtitle: string }>("settings")) ??
+    (settingsDefault as { siteTitle: string; siteSubtitle: string });
+
   return (
     <AdminClient
-      initialAssets={assetsData as Asset[]}
-      initialTabs={tabsData as TabConfig[]}
-      initialSettings={settingsData as { siteTitle: string; siteSubtitle: string }}
+      initialAssets={assets}
+      initialTabs={tabs}
+      initialSettings={settings}
     />
   );
 }

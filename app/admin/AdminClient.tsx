@@ -82,7 +82,7 @@ export function AdminClient({
     setAuthLoading(false);
   }
 
-  // ── Save to GitHub ────────────────────────────────────────────────
+  // ── Save to KV ───────────────────────────────────────────────────
   async function saveTarget(target: string, data: unknown) {
     setSaving(true); setSaveMsg(null);
     try {

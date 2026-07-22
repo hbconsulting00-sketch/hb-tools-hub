@@ -1,13 +1,10 @@
+import { kv } from "@vercel/kv";
 import { AssetCard, Asset } from "@/components/AssetCard";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { COLOR_PRESETS, TabConfig } from "@/lib/tabPresets";
-import assetsData from "@/data/assets.json";
-import tabsData from "@/data/tabs.json";
-import settingsData from "@/data/settings.json";
-
-const assets = assetsData as Asset[];
-const tabs = tabsData as TabConfig[];
-const settings = settingsData as { siteTitle: string; siteSubtitle: string };
+import assetsDefault from "@/data/assets.json";
+import tabsDefault from "@/data/tabs.json";
+import settingsDefault from "@/data/settings.json";
 
 export default async function Home({
   searchParams,
@@ -15,6 +12,16 @@ export default async function Home({
   searchParams: Promise<{ tab?: string }>;
 }) {
   const params = await searchParams;
+
+  // Read from KV (live data), fall back to static JSON files
+  const assets =
+    (await kv.get<Asset[]>("assets")) ?? (assetsDefault as Asset[]);
+  const tabs =
+    (await kv.get<TabConfig[]>("tabs")) ?? (tabsDefault as TabConfig[]);
+  const settings =
+    (await kv.get<{ siteTitle: string; siteSubtitle: string }>("settings")) ??
+    (settingsDefault as { siteTitle: string; siteSubtitle: string });
+
   const activeTabKey = params.tab ?? tabs[0]?.key ?? "";
   const activeTab = tabs.find((t) => t.key === activeTabKey) ?? tabs[0];
   const activePreset = COLOR_PRESETS[activeTab.colorPreset];
