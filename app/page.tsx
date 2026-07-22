@@ -43,7 +43,16 @@ export default async function Home({
               </p>
             </div>
           </div>
-          <ThemeToggle />
+          <div className="flex items-center gap-2">
+            <a
+              href="/admin"
+              className="px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all"
+              style={{ borderColor: "var(--card-border)", color: "var(--text-sec)" }}
+            >
+              ⚙ Admin
+            </a>
+            <ThemeToggle />
+          </div>
         </div>
       </header>
 
