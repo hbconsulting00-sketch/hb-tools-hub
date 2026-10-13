@@ -1,0 +1,50 @@
+[
+  {
+    "key": "tool",
+    "label": "כלי",
+    "emoji": "🧰",
+    "colorPreset": "blue",
+    "behavior": "link",
+    "btnLabel": "פתח"
+  },
+  {
+    "key": "agent",
+    "label": "סוכן",
+    "emoji": "🤖",
+    "colorPreset": "purple",
+    "behavior": "link",
+    "btnLabel": "פתח סוכן"
+  },
+  {
+    "key": "skill",
+    "label": "סקיל",
+    "emoji": "⚡",
+    "colorPreset": "green",
+    "behavior": "command",
+    "btnLabel": "הפעל"
+  },
+  {
+    "key": "extension",
+    "label": "תוסף",
+    "emoji": "🧩",
+    "colorPreset": "orange",
+    "behavior": "download",
+    "btnLabel": "הורד תוסף"
+  },
+  {
+    "key": "website",
+    "label": "אתר",
+    "emoji": "🌐",
+    "colorPreset": "sky",
+    "behavior": "link",
+    "btnLabel": "פתח אתר"
+  },
+  {
+    "key": "form",
+    "label": "טופס",
+    "emoji": "📝",
+    "colorPreset": "teal",
+    "behavior": "link",
+    "btnLabel": "מלא טופס"
+  }
+]

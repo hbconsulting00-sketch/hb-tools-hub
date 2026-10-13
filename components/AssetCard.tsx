@@ -1,10 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { AssetTypeConfig, findType, typeHex } from "@/lib/assetTypes";
 
 export interface Asset {
   name: string;
-  type: "tool" | "skill" | "agent" | "extension";
+  /** Key of an entry in the types list (editable in the admin panel). */
+  type: string;
   description: string;
   access: string;
   access_note: string | null;
@@ -13,50 +15,38 @@ export interface Asset {
   guide_url?: string | null;
   install_url?: string | null;
   template_url?: string | null;
+  /** Free text, one step per line. Shown only when filled. */
+  install_notes?: string | null;
   added_by: string;
 }
 
-const TYPE_CONFIG = {
-  tool: {
-    label: "כלי",
-    labelBg: "bg-blue-500/20 text-blue-300 border border-blue-500/30",
-    btnLabel: "פתח",
-    btnStyle: "bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white",
-  },
-  agent: {
-    label: "סוכן",
-    labelBg: "bg-purple-500/20 text-purple-300 border border-purple-500/30",
-    btnLabel: "פתח סוכן",
-    btnStyle: "bg-purple-500 hover:bg-purple-600 active:bg-purple-700 text-white",
-  },
-  skill: {
-    label: "סקיל",
-    labelBg: "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30",
-    btnLabel: null,
-    btnStyle: "",
-  },
-  extension: {
-    label: "תוסף",
-    labelBg: "bg-orange-500/20 text-orange-300 border border-orange-500/30",
-    btnLabel: null,
-    btnStyle: "",
-  },
-};
+/** Mix a hex colour with transparency, e.g. alpha("#3b82f6", 0.12). */
+function alpha(hex: string, a: number): string {
+  const n = parseInt(hex.slice(1), 16);
+  return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${a})`;
+}
 
 export function AssetCard({
   asset,
   accentColor,
+  types,
   isStudio = false,
 }: {
   asset: Asset;
   accentColor: string;
+  types: AssetTypeConfig[];
   isStudio?: boolean;
 }) {
   const [copied, setCopied] = useState(false);
   const [copiedPass, setCopiedPass] = useState(false);
-  const cfg = TYPE_CONFIG[asset.type];
-  const hasAccess = asset.access && asset.access.trim() !== "";
-  const isSkillReady = asset.type === "skill" && hasAccess && !asset.access_note;
+
+  const cfg = findType(types, asset.type);
+  const hex = typeHex(cfg);
+
+  // Extensions historically stored their ZIP link in template_url, not access.
+  const target = asset.access?.trim() || (cfg.behavior === "download" ? asset.template_url?.trim() ?? "" : "");
+  const hasTarget = target !== "";
+  const steps = (asset.install_notes ?? "").split("\n").map((s) => s.trim()).filter(Boolean);
 
   function copyCommand() {
     navigator.clipboard.writeText(asset.access);
@@ -66,19 +56,25 @@ export function AssetCard({
 
   function copyPassword() {
     if (!asset.access_note) return;
-    const val = asset.access_note.replace(/^סיסמה:\s*/i, "");
-    navigator.clipboard.writeText(val);
+    navigator.clipboard.writeText(asset.access_note.replace(/^סיסמה:\s*/i, ""));
     setCopiedPass(true);
     setTimeout(() => setCopiedPass(false), 2200);
   }
 
+  const comingSoon = (
+    <div
+      className="rounded-xl p-3 text-center"
+      style={{ background: "var(--empty-bg)", border: "1px dashed var(--empty-border)" }}
+    >
+      <p className="text-sm" style={{ color: "var(--text-muted)" }}>🔧 בפיתוח — יגיע בקרוב</p>
+    </div>
+  );
+
   return (
     <div className="card-glass rounded-2xl flex flex-col gap-3.5 p-5 relative overflow-hidden">
 
-      {/* Top accent gradient bar */}
-      <div
-        className={`absolute top-0 right-0 left-0 h-0.5 bg-gradient-to-l ${accentColor} opacity-75`}
-      />
+      {/* Top accent gradient bar — follows the active tab colour */}
+      <div className={`absolute top-0 right-0 left-0 h-0.5 bg-gradient-to-l ${accentColor} opacity-75`} />
 
       {/* Gloss overlay */}
       <div
@@ -92,8 +88,12 @@ export function AssetCard({
         <h3 className="font-bold text-base leading-snug" style={{ color: "var(--page-text)" }}>
           {asset.name}
         </h3>
-        <span className={`shrink-0 text-xs font-semibold px-2.5 py-0.5 rounded-full ${cfg.labelBg}`}>
-          {cfg.label}
+        <span
+          className="shrink-0 text-xs font-semibold px-2.5 py-0.5 rounded-full inline-flex items-center gap-1"
+          style={{ background: alpha(hex, 0.14), color: hex, border: `1px solid ${alpha(hex, 0.3)}` }}
+        >
+          <span>{cfg.emoji}</span>
+          <span>{cfg.label}</span>
         </span>
       </div>
 
@@ -102,277 +102,136 @@ export function AssetCard({
         {asset.description}
       </p>
 
-      {/* ── SKILL BLOCK ────────────────────────────────────── */}
-      {asset.type === "skill" && (
-        <div className="space-y-2.5">
-
-          {/* Coming-soon state */}
-          {!hasAccess && (
+      {/* ── MAIN ACTION ──────────────────────────────────── */}
+      {cfg.behavior === "command" ? (
+        hasTarget ? (
+          <div className="space-y-2">
             <div
-              className="rounded-xl p-4 text-center"
-              style={{ background: "var(--empty-bg)", border: "1px solid var(--empty-border)" }}
+              className="rounded-xl p-3 text-center"
+              style={{ background: "var(--cmd-bg)", border: `1px solid ${alpha(hex, 0.3)}` }}
             >
-              <div className="text-2xl mb-1">🔧</div>
-              <p className="text-sm" style={{ color: "var(--text-muted)" }}>בפיתוח — יגיע בקרוב</p>
-            </div>
-          )}
-
-          {hasAccess && (
-            <>
-              {/* Step 1 — Install */}
-              <div
-                className="rounded-xl p-3 space-y-2"
-                style={{ background: "var(--step-bg)", border: "1px solid var(--empty-border)" }}
+              <p className="text-xs mb-1" style={{ color: "var(--cmd-label)" }}>הפקודה ב-Claude Code</p>
+              <span
+                className="text-base font-bold tracking-wide"
+                style={{ fontFamily: "'DM Mono', 'Courier New', monospace", color: hex }}
+                dir="ltr"
               >
-                <p className="text-xs font-bold" style={{ color: "var(--text-muted)" }}>
-                  שלב 1 — התקנה
-                </p>
-                {asset.install_url ? (
-                  <>
-                    <div className="text-xs space-y-1" style={{ color: "var(--step-text)" }}>
-                      <div>① הורידי את תיקיית הסקיל מ-GitHub</div>
-                      <div className="font-mono text-xs px-2 py-1 rounded" style={{ background: "var(--cmd-bg)", color: "#94a3b8", direction: "ltr", textAlign: "left" }}>
-                        {"~\\.claude\\skills\\"}
-                      </div>
-                      <div>② העתיקי לתוך התיקייה למעלה</div>
-                      <div>③ סגרי ופתחי מחדש Claude Code</div>
-                    </div>
-                    <a
-                      href={asset.install_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-center gap-1.5 text-xs font-semibold py-1.5 px-3 rounded-lg transition-all w-full"
-                      style={{ background: "rgba(16,185,129,0.15)", border: "1px solid rgba(16,185,129,0.3)", color: "#6ee7b7" }}
-                      onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = "rgba(16,185,129,0.25)"; }}
-                      onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = "rgba(16,185,129,0.15)"; }}
-                    >
-                      <span>⬇️</span>
-                      <span>הורד סקיל מ-GitHub</span>
-                    </a>
-                  </>
-                ) : (
-                  <p className="text-xs" style={{ color: "var(--text-muted)" }}>
-                    ℹ️ {asset.access_note || "קובץ ההתקנה יהיה זמין בקרוב"}
-                  </p>
-                )}
-              </div>
-
-              {/* Step 2 — Run (only if install_url exists) */}
-              {asset.install_url && (
-                <div
-                  className="rounded-xl p-3 space-y-2"
-                  style={{ background: "var(--step-bg)", border: "1px solid var(--empty-border)" }}
-                >
-                  <p className="text-xs font-bold" style={{ color: "var(--text-muted)" }}>
-                    שלב 2 — הפעלה
-                  </p>
-
-                  {/* Command display */}
-                  <div
-                    className="rounded-lg p-2.5 text-center"
-                    style={{ background: "var(--cmd-bg)", border: "1px solid var(--cmd-border)" }}
-                  >
-                    <p className="text-xs mb-1" style={{ color: "var(--cmd-label)" }}>
-                      הפקודה ב-Claude Code
-                    </p>
-                    <span
-                      className="text-emerald-400 text-base font-bold tracking-wide"
-                      style={{ fontFamily: "'DM Mono', 'Courier New', monospace" }}
-                      dir="ltr"
-                    >
-                      {asset.access}
-                    </span>
-                  </div>
-
-                  {/* Mini 3-step */}
-                  <div className="grid grid-cols-3 gap-1 text-xs text-center">
-                    {[
-                      { n: "1️⃣", t: "פתחי Claude Code" },
-                      { n: "2️⃣", t: "שיחה חדשה" },
-                      { n: "3️⃣", t: `הקלידי ${asset.access}` },
-                    ].map((s) => (
-                      <div
-                        key={s.n}
-                        className="rounded-lg py-1.5 px-1"
-                        style={{ background: "var(--cmd-bg)", color: "var(--step-text)" }}
-                      >
-                        <div className="mb-0.5">{s.n}</div>
-                        <div className="leading-tight">{s.t}</div>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Copy button */}
-                  <button
-                    onClick={copyCommand}
-                    className="w-full text-xs font-semibold py-1.5 px-3 rounded-lg border transition-all"
-                    style={
-                      copied
-                        ? { background: "rgba(16,185,129,0.2)", borderColor: "rgba(16,185,129,0.4)", color: "#6ee7b7" }
-                        : { background: "var(--copy-bg)", borderColor: "var(--copy-border)", color: "var(--copy-text)" }
-                    }
-                    onMouseEnter={(e) => { if (!copied) (e.currentTarget as HTMLButtonElement).style.background = "var(--copy-hover)"; }}
-                    onMouseLeave={(e) => { if (!copied) (e.currentTarget as HTMLButtonElement).style.background = "var(--copy-bg)"; }}
-                  >
-                    {copied ? "✅ הועתק!" : "📋 העתק פקודה"}
-                  </button>
-                </div>
-              )}
-
-              {/* access_note on skills without install_url (e.g. in-dev) */}
-              {!asset.install_url && asset.access_note && (
-                <p className="text-xs text-center" style={{ color: "var(--text-muted)" }}>
-                  ℹ️ {asset.access_note}
-                </p>
-              )}
-            </>
-          )}
-        </div>
+                {asset.access}
+              </span>
+            </div>
+            <button
+              onClick={copyCommand}
+              className="w-full text-sm font-bold py-2.5 px-4 rounded-xl border transition-all duration-200"
+              style={
+                copied
+                  ? { background: alpha(hex, 0.2), borderColor: alpha(hex, 0.45), color: hex }
+                  : { background: alpha(hex, 0.1), borderColor: alpha(hex, 0.28), color: hex }
+              }
+            >
+              {copied ? "✅ הועתק!" : "📋 העתק פקודה"}
+            </button>
+          </div>
+        ) : (
+          comingSoon
+        )
+      ) : hasTarget ? (
+        <a
+          href={target}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="btn-solid flex items-center justify-center gap-2 text-sm font-bold py-2.5 px-4 rounded-xl text-white"
+          style={{ background: hex, boxShadow: `0 6px 18px ${alpha(hex, 0.35)}` }}
+        >
+          <span>{cfg.behavior === "download" ? "⬇" : ""}</span>
+          <span>{cfg.btnLabel}</span>
+          {cfg.behavior !== "download" && <span className="opacity-80 text-base">↗</span>}
+        </a>
+      ) : (
+        comingSoon
       )}
 
-      {/* ── EXTENSION BLOCK ──────────────────────────────── */}
-      {asset.type === "extension" && (
-        <div className="space-y-2.5">
-          {/* Download button */}
-          {asset.template_url && (
-            <a
-              href={asset.template_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 text-sm font-bold py-2.5 px-4 rounded-xl transition-all duration-200"
-              style={{ background: "rgba(249,115,22,0.18)", border: "1px solid rgba(249,115,22,0.35)", color: "#fdba74" }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = "rgba(249,115,22,0.28)"; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = "rgba(249,115,22,0.18)"; }}
-            >
-              <span>⬇️</span>
-              <span>הורד תוסף (ZIP)</span>
-            </a>
-          )}
+      {/* Password / access note */}
+      {asset.access_note && (
+        <button
+          onClick={copyPassword}
+          className="w-full text-xs py-2 px-3 rounded-xl border transition-all duration-200"
+          style={
+            copiedPass
+              ? { background: "rgba(16,185,129,0.18)", borderColor: "rgba(16,185,129,0.4)", color: "#059669" }
+              : { background: "var(--pass-bg)", borderColor: "var(--pass-border)", color: "var(--pass-text)" }
+          }
+        >
+          {copiedPass ? "✅ סיסמה הועתקה!" : `🔑 ${asset.access_note}`}
+        </button>
+      )}
 
-          {/* Install steps */}
-          <div
-            className="rounded-xl p-3 space-y-1.5"
-            style={{ background: "var(--step-bg)", border: "1px solid var(--empty-border)" }}
+      {/* ── INSTALL INSTRUCTIONS — only when she wrote some ── */}
+      {steps.length > 0 && (
+        <details className="install-details rounded-xl" style={{ background: "var(--step-bg)", border: "1px solid var(--empty-border)" }}>
+          <summary
+            className="cursor-pointer select-none text-xs font-bold px-3 py-2 flex items-center gap-1.5"
+            style={{ color: "var(--text-sec)" }}
           >
-            <p className="text-xs font-bold mb-2" style={{ color: "var(--text-muted)" }}>הוראות התקנה</p>
-            {[
-              { n: "1", t: "עשי אנזיפ לקובץ לתיקייה נגישה" },
-              { n: "2", t: "כנסי לכרום → chrome://extensions" },
-              { n: "3", t: 'הפעילי "Developer mode" (מצב מפתח)' },
-              { n: "4", t: 'לחצי "Load unpacked" ← בחרי את התיקייה' },
-            ].map((s) => (
-              <div key={s.n} className="flex items-start gap-2 text-xs" style={{ color: "var(--step-text)" }}>
+            <span>🛠</span>
+            <span>איך מתקינים?</span>
+          </summary>
+          <div className="px-3 pb-3 pt-0.5 space-y-1.5">
+            {steps.map((s, i) => (
+              <div key={i} className="flex items-start gap-2 text-xs" style={{ color: "var(--step-text)" }}>
                 <span
-                  className="shrink-0 w-4 h-4 rounded-full flex items-center justify-center text-xs font-bold mt-0.5"
-                  style={{ background: "rgba(249,115,22,0.2)", color: "#fdba74" }}
+                  className="shrink-0 w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold mt-0.5"
+                  style={{ background: alpha(hex, 0.18), color: hex }}
                 >
-                  {s.n}
+                  {i + 1}
                 </span>
-                <span>{s.t}</span>
+                <span>{s}</span>
               </div>
             ))}
           </div>
+        </details>
+      )}
 
-          {/* Link to README */}
+      {/* ── SECONDARY LINKS — each appears only if filled ── */}
+      {(asset.install_url || (isStudio && asset.template_url)) && (
+        <div className="flex gap-2 flex-wrap">
           {asset.install_url && (
             <a
               href={asset.install_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-center gap-1.5 text-xs py-1.5 px-3 rounded-lg transition-all"
-              style={{ background: "var(--empty-bg)", border: "1px solid var(--empty-border)", color: "var(--text-sec)" }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "#fdba74"; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "var(--text-sec)"; }}
+              className="link-chip flex-1 flex items-center justify-center gap-1.5 text-xs font-semibold py-2 px-3 rounded-xl border"
+              style={{ background: "var(--empty-bg)", borderColor: "var(--empty-border)", color: "var(--text-sec)" }}
             >
-              <span>📄</span>
-              <span>הוראות מלאות ב-GitHub</span>
-              <span className="opacity-60">↗</span>
+              <span>⬇</span><span>קובץ התקנה</span>
             </a>
           )}
-        </div>
-      )}
-
-      {/* ── TOOL / AGENT BLOCK ───────────────────────────── */}
-      {(asset.type === "tool" || asset.type === "agent") && (
-        <div className="space-y-2">
-          {hasAccess ? (
+          {isStudio && asset.template_url && (
             <a
-              href={asset.access}
+              href={asset.template_url}
               target="_blank"
               rel="noopener noreferrer"
-              className={`flex items-center justify-center gap-2 text-sm font-bold py-2.5 px-4 rounded-xl transition-all duration-200 ${cfg.btnStyle}`}
+              className="link-chip flex-1 flex items-center justify-center gap-1.5 text-xs font-semibold py-2 px-3 rounded-xl border"
+              style={{ background: "var(--empty-bg)", borderColor: "var(--empty-border)", color: "var(--text-sec)" }}
             >
-              <span>{cfg.btnLabel}</span>
-              <span className="opacity-80 text-base">↗</span>
+              <span>📦</span><span>קוד מקור</span>
             </a>
-          ) : (
-            <div
-              className="rounded-xl p-3 text-center"
-              style={{ background: "var(--empty-bg)", border: "1px dashed var(--empty-border)" }}
-            >
-              <p className="text-sm" style={{ color: "var(--text-muted)" }}>🔧 בפיתוח — יגיע בקרוב</p>
-            </div>
-          )}
-
-          {/* Password copy button */}
-          {asset.access_note && (
-            <button
-              onClick={copyPassword}
-              className="w-full text-xs py-2 px-3 rounded-xl border transition-all duration-200"
-              style={
-                copiedPass
-                  ? { background: "rgba(16,185,129,0.18)", borderColor: "rgba(16,185,129,0.4)", color: "#6ee7b7" }
-                  : { background: "var(--pass-bg)", borderColor: "var(--pass-border)", color: "var(--pass-text)" }
-              }
-              onMouseEnter={(e) => { if (!copiedPass) (e.currentTarget as HTMLButtonElement).style.background = "var(--copy-hover)"; }}
-              onMouseLeave={(e) => { if (!copiedPass) (e.currentTarget as HTMLButtonElement).style.background = "var(--pass-bg)"; }}
-            >
-              {copiedPass ? "✅ סיסמה הועתקה!" : `🔑 ${asset.access_note}`}
-            </button>
           )}
         </div>
       )}
 
-      {/* ── TEMPLATE / SOURCE BUTTON (studio only, not extension) ── */}
-      {isStudio && asset.template_url && asset.type !== "extension" && (
-        <a
-          href={asset.template_url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center justify-center gap-2 text-xs font-semibold py-2 px-4 rounded-xl border transition-all duration-200"
-          style={{ background: "rgba(59,130,246,0.08)", borderColor: "rgba(59,130,246,0.2)", color: "#93c5fd" }}
-          onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = "rgba(59,130,246,0.16)"; }}
-          onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = "rgba(59,130,246,0.08)"; }}
-        >
-          <span>📦</span>
-          <span>{hasAccess ? "קוד מקור ב-GitHub" : "הורד תבנית מ-GitHub"}</span>
-          <span className="opacity-60">↗</span>
-        </a>
-      )}
-
-      {/* ── GUIDE BUTTON (always visible) ────────────────── */}
-      {asset.has_guide && asset.guide_url ? (
+      {/* ── GUIDE BUTTON — only when there is a guide to open ── */}
+      {asset.has_guide && asset.guide_url && (
         <a
           href={asset.guide_url}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center justify-center gap-2 text-xs font-semibold py-2 px-4 rounded-xl border transition-all duration-200"
-          style={{ background: "var(--guide-bg)", borderColor: "var(--guide-border)", color: "var(--guide-text)" }}
-          onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = "var(--guide-hover)"; }}
-          onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = "var(--guide-bg)"; }}
+          className="btn-outline flex items-center justify-center gap-2 text-sm font-bold py-2.5 px-4 rounded-xl"
+          style={{ background: alpha(hex, 0.09), border: `1.5px solid ${alpha(hex, 0.38)}`, color: hex }}
         >
           <span>📖</span>
           <span>מדריך שימוש</span>
-          <span className="opacity-60">↗</span>
+          <span className="opacity-70">↗</span>
         </a>
-      ) : (
-        <div
-          className="flex items-center justify-center gap-2 text-xs font-semibold py-2 px-4 rounded-xl border"
-          style={{ background: "var(--empty-bg)", borderColor: "var(--empty-border)", color: "var(--text-muted)", opacity: 0.5, cursor: "default" }}
-        >
-          <span>📖</span>
-          <span>מדריך שימוש</span>
-        </div>
       )}
     </div>
   );

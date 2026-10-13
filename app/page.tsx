@@ -1,8 +1,10 @@
 import { AssetCard, Asset } from "@/components/AssetCard";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { COLOR_PRESETS, TabConfig } from "@/lib/tabPresets";
+import { AssetTypeConfig } from "@/lib/assetTypes";
 import assetsDefault from "@/data/assets.json";
 import tabsDefault from "@/data/tabs.json";
+import typesDefault from "@/data/types.json";
 import settingsDefault from "@/data/settings.json";
 import { redisGet } from "@/lib/redis";
 
@@ -15,8 +17,9 @@ export default async function Home({
 }) {
   const params = await searchParams;
 
-  const assets   = (await redisGet<Asset[]>("assets"))                              ?? (assetsDefault   as Asset[]);
-  const tabs     = (await redisGet<TabConfig[]>("tabs"))                            ?? (tabsDefault     as TabConfig[]);
+  const assets   = (await redisGet<Asset[]>("assets"))           ?? (assetsDefault as Asset[]);
+  const tabs     = (await redisGet<TabConfig[]>("tabs"))         ?? (tabsDefault   as TabConfig[]);
+  const types    = (await redisGet<AssetTypeConfig[]>("types"))  ?? (typesDefault  as AssetTypeConfig[]);
   const settings = (await redisGet<{ siteTitle: string; siteSubtitle: string }>("settings")) ?? (settingsDefault as { siteTitle: string; siteSubtitle: string });
 
   const activeTabKey = params.tab ?? tabs[0]?.key ?? "";
@@ -31,8 +34,8 @@ export default async function Home({
     <div className="min-h-screen flex flex-col">
 
       {/* Header */}
-      <header className="px-6 pt-7 pb-5 header-animate">
-        <div className="max-w-5xl mx-auto flex items-center justify-between gap-4">
+      <header className="px-6 lg:px-10 pt-7 pb-5 header-animate">
+        <div className="page-width flex items-center justify-between gap-4">
           <div className="flex items-center gap-3.5 min-w-0">
             <div className="logo-badge">HB</div>
             <div className="min-w-0">
@@ -46,7 +49,7 @@ export default async function Home({
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <a href="/admin" className="px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all"
+            <a href="/admin" className="link-chip px-3 py-1.5 rounded-xl text-xs font-semibold border"
               style={{ borderColor: "var(--card-border)", color: "var(--text-sec)" }}>
               ⚙ Admin
             </a>
@@ -56,8 +59,8 @@ export default async function Home({
       </header>
 
       {/* Tab bar */}
-      <nav className="px-6 pb-5 tabs-animate">
-        <div className="max-w-5xl mx-auto flex gap-2.5 flex-wrap">
+      <nav className="px-6 lg:px-10 pb-5 tabs-animate">
+        <div className="page-width flex gap-2.5 flex-wrap">
           {tabs.map((tab) => {
             const preset  = COLOR_PRESETS[tab.colorPreset];
             const count   = tab.showAll ? assets.length : assets.filter((a) => a.audience.includes(tab.key)).length;
@@ -79,23 +82,33 @@ export default async function Home({
       </nav>
 
       {/* Accent line */}
-      <div className={`mx-6 mb-7 h-px bg-gradient-to-l ${activePreset.color} max-w-5xl`}
-        style={{ marginLeft: "auto", marginRight: "auto", opacity: "var(--divider-opacity)" }} />
+      <div className="px-6 lg:px-10 mb-7">
+        <div className={`page-width h-px bg-gradient-to-l ${activePreset.color}`}
+          style={{ opacity: "var(--divider-opacity)" }} />
+      </div>
 
       {/* Card grid */}
-      <main className="flex-1 max-w-5xl mx-auto w-full px-6 pb-14">
-        {tabAssets.length === 0 ? (
-          <div className="text-center py-24">
-            <div className="text-5xl mb-4">📭</div>
-            <p className="text-lg font-semibold" style={{ color: "var(--text-sec)" }}>אין כלים בקטגוריה זו עדיין</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 card-grid">
-            {tabAssets.map((asset) => (
-              <AssetCard key={asset.name} asset={asset} accentColor={activePreset.color} isStudio={activeTab.showAll ?? false} />
-            ))}
-          </div>
-        )}
+      <main className="flex-1 w-full px-6 lg:px-10 pb-14">
+        <div className="page-width">
+          {tabAssets.length === 0 ? (
+            <div className="text-center py-24">
+              <div className="text-5xl mb-4">📭</div>
+              <p className="text-lg font-semibold" style={{ color: "var(--text-sec)" }}>אין כלים בקטגוריה זו עדיין</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 card-grid">
+              {tabAssets.map((asset) => (
+                <AssetCard
+                  key={asset.name}
+                  asset={asset}
+                  accentColor={activePreset.color}
+                  types={types}
+                  isStudio={activeTab.showAll ?? false}
+                />
+              ))}
+            </div>
+          )}
+        </div>
       </main>
 
       <footer className="text-center text-xs py-5 border-t"

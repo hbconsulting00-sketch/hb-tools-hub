@@ -343,6 +343,7 @@
     "guide_url": null,
     "install_url": "https://github.com/hbconsulting00-sketch/rtl-fixer-extension",
     "template_url": "https://github.com/hbconsulting00-sketch/rtl-fixer-extension/raw/main/rtl-fixer-extension.zip",
+    "install_notes": "עשי אנזיפ לקובץ לתיקייה נגישה במחשב\nכנסי לכרום → chrome://extensions\nהפעילי \"Developer mode\" (מצב מפתח)\nלחצי \"Load unpacked\" ← בחרי את התיקייה",
     "added_by": "admin"
   }
 ]

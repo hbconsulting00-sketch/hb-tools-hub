@@ -1,7 +1,9 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import Link from "next/link";
 import { Asset } from "@/components/AssetCard";
-import { TabConfig, ColorPreset, COLOR_PRESETS, PRESET_LABELS } from "@/lib/tabPresets";
+import { TabConfig, ColorPreset, COLOR_PRESETS, PRESET_LABELS, PRESET_HEX, ALL_PRESETS } from "@/lib/tabPresets";
+import { AssetTypeConfig, TypeBehavior, BEHAVIORS, BEHAVIOR_LABELS, INSTALL_PRESETS, findType } from "@/lib/assetTypes";
 
 // ── Types ─────────────────────────────────────────────────────────────
 interface SiteSettings {
@@ -16,36 +18,47 @@ const AUDIENCES_BASE = [
   { key: "studio-only",  label: "סטודיו",      emoji: "🛠" },
 ];
 
-const TYPES: Asset["type"][] = ["tool", "skill", "agent", "extension"];
-const TYPE_LABELS: Record<Asset["type"], string> = {
-  tool: "כלי", skill: "סקיל", agent: "סוכן", extension: "תוסף",
-};
-const ALL_PRESETS = Object.keys(COLOR_PRESETS) as ColorPreset[];
-
-function emptyAsset(): Asset {
-  return { name: "", type: "tool", description: "", access: "", access_note: null,
-    audience: [], has_guide: false, guide_url: null, install_url: null, template_url: null, added_by: "admin" };
+function emptyAsset(firstType: string): Asset {
+  return { name: "", type: firstType, description: "", access: "", access_note: null,
+    audience: [], has_guide: false, guide_url: null, install_url: null, template_url: null,
+    install_notes: null, added_by: "admin" };
 }
 function emptyTab(): TabConfig {
   return { key: "", label: "", emoji: "📌", colorPreset: "sky", showAll: false };
 }
+function emptyType(): AssetTypeConfig {
+  return { key: "", label: "", emoji: "🔗", colorPreset: "sky", behavior: "link", btnLabel: "פתח" };
+}
 
-type Section = "assets" | "tabs" | "settings";
-type FormTarget = "asset" | "tab";
+type Section = "assets" | "types" | "tabs" | "settings";
+type FormTarget = "asset" | "tab" | "type";
 
 // ── Component ─────────────────────────────────────────────────────────
 export function AdminClient({
-  initialAssets, initialTabs, initialSettings,
+  initialAssets, initialTabs, initialTypes, initialSettings,
 }: {
   initialAssets: Asset[];
   initialTabs: TabConfig[];
+  initialTypes: AssetTypeConfig[];
   initialSettings: SiteSettings;
 }) {
   // Auth
   const [authed, setAuthed] = useState(false);
+  const [checkingSession, setCheckingSession] = useState(true);
   const [password, setPassword] = useState("");
   const [authLoading, setAuthLoading] = useState(false);
   const [authError, setAuthError] = useState("");
+
+  // Resume an existing browser session instead of asking for the password again.
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/admin/session")
+      .then((r) => r.json())
+      .then((d) => { if (!cancelled && d?.authed) setAuthed(true); })
+      .catch(() => {})
+      .finally(() => { if (!cancelled) setCheckingSession(false); });
+    return () => { cancelled = true; };
+  }, []);
 
   // Navigation
   const [section, setSection] = useState<Section>("assets");
@@ -53,6 +66,7 @@ export function AdminClient({
   // Data
   const [assets, setAssets]     = useState<Asset[]>(initialAssets);
   const [tabs, setTabs]         = useState<TabConfig[]>(initialTabs);
+  const [types, setTypes]       = useState<AssetTypeConfig[]>(initialTypes);
   const [settings, setSettings] = useState<SiteSettings>(initialSettings);
 
   // Pending changes per target
@@ -61,8 +75,10 @@ export function AdminClient({
   // Form state
   const [formTarget, setFormTarget] = useState<FormTarget>("asset");
   const [editingIndex, setEditingIndex] = useState<number>(-2); // -2=hidden, -1=new, >=0=edit
-  const [assetForm, setAssetForm] = useState<Asset>(emptyAsset());
+  const [assetForm, setAssetForm] = useState<Asset>(emptyAsset(initialTypes[0]?.key ?? "tool"));
   const [tabForm, setTabForm]     = useState<TabConfig>(emptyTab());
+  const [typeForm, setTypeForm]   = useState<AssetTypeConfig>(emptyType());
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   // Save status
   const [saving, setSaving]   = useState(false);
@@ -77,24 +93,32 @@ export function AdminClient({
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ password }),
       });
-      if (res.ok) { setAuthed(true); } else { setAuthError("סיסמה שגויה"); }
+      if (res.ok) { setAuthed(true); setPassword(""); } else { setAuthError("סיסמה שגויה"); }
     } catch { setAuthError("שגיאת חיבור"); }
     setAuthLoading(false);
   }
 
-  // ── Save to KV ───────────────────────────────────────────────────
+  async function logout() {
+    await fetch("/api/admin/session", { method: "DELETE" }).catch(() => {});
+    setAuthed(false);
+  }
+
+  // ── Save to Redis ────────────────────────────────────────────────
   async function saveTarget(target: string, data: unknown) {
     setSaving(true); setSaveMsg(null);
     try {
       const res = await fetch("/api/admin/assets", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password, target, data }),
+        body: JSON.stringify({ target, data }),
       });
       let result: Record<string, string> = {};
       try { result = await res.json(); } catch { /* non-json body */ }
       if (res.ok) {
-        setSaveMsg({ ok: true, text: "✅ נשמר ב-GitHub! האתר יתעדכן תוך ~1-2 דקות" });
+        setSaveMsg({ ok: true, text: "✅ פורסם — האתר כבר מעודכן" });
         setDirty((d) => { const n = new Set(d); n.delete(target); return n; });
+      } else if (res.status === 401) {
+        setAuthed(false);
+        setSaveMsg({ ok: false, text: "❌ ההתחברות פגה — התחברי שוב" });
       } else {
         setSaveMsg({ ok: false, text: `❌ ${result.error || `שגיאה ${res.status}`}` });
       }
@@ -110,9 +134,16 @@ export function AdminClient({
   }
 
   // ── Asset form ────────────────────────────────────────────────────
-  function openAssetAdd()        { setAssetForm(emptyAsset()); setEditingIndex(-1); setFormTarget("asset"); }
-  function openAssetEdit(i: number) { setAssetForm({ ...assets[i] }); setEditingIndex(i); setFormTarget("asset"); }
-  function closeForm()           { setEditingIndex(-2); }
+  function openAssetAdd() {
+    setAssetForm(emptyAsset(types[0]?.key ?? "tool"));
+    setShowAdvanced(false); setEditingIndex(-1); setFormTarget("asset");
+  }
+  function openAssetEdit(i: number) {
+    setAssetForm({ ...assets[i] });
+    setShowAdvanced(!!(assets[i].install_url || assets[i].template_url));
+    setEditingIndex(i); setFormTarget("asset");
+  }
+  function closeForm() { setEditingIndex(-2); }
 
   function commitAsset() {
     const updated = [...assets];
@@ -132,7 +163,7 @@ export function AdminClient({
   }
 
   // ── Tab form ──────────────────────────────────────────────────────
-  function openTabAdd()          { setTabForm(emptyTab()); setEditingIndex(-1); setFormTarget("tab"); }
+  function openTabAdd()           { setTabForm(emptyTab()); setEditingIndex(-1); setFormTarget("tab"); }
   function openTabEdit(i: number) { setTabForm({ ...tabs[i] }); setEditingIndex(i); setFormTarget("tab"); }
 
   function commitTab() {
@@ -140,18 +171,42 @@ export function AdminClient({
     if (editingIndex === -1) { updated.push(tabForm); } else { updated[editingIndex] = tabForm; }
     setTabs(updated); markDirty("tabs"); closeForm();
   }
-
   function deleteTab(i: number) {
     if (!confirm(`למחוק את הכרטיסייה "${tabs[i].label}"?`)) return;
     setTabs(tabs.filter((_, idx) => idx !== i)); markDirty("tabs");
   }
-
   function moveTab(i: number, dir: -1 | 1) {
     const j = i + dir;
     if (j < 0 || j >= tabs.length) return;
     const updated = [...tabs];
     [updated[i], updated[j]] = [updated[j], updated[i]];
     setTabs(updated); markDirty("tabs");
+  }
+
+  // ── Type form ─────────────────────────────────────────────────────
+  function openTypeAdd()           { setTypeForm(emptyType()); setEditingIndex(-1); setFormTarget("type"); }
+  function openTypeEdit(i: number) { setTypeForm({ ...types[i] }); setEditingIndex(i); setFormTarget("type"); }
+
+  function commitType() {
+    const updated = [...types];
+    if (editingIndex === -1) { updated.push(typeForm); } else { updated[editingIndex] = typeForm; }
+    setTypes(updated); markDirty("types"); closeForm();
+  }
+  function deleteType(i: number) {
+    const inUse = assets.filter((a) => a.type === types[i].key);
+    if (inUse.length > 0) {
+      alert(`אי אפשר למחוק את "${types[i].label}" — ${inUse.length} כלים משתמשים בו:\n\n${inUse.slice(0, 8).map((a) => "• " + a.name).join("\n")}${inUse.length > 8 ? "\n…" : ""}\n\nשני אותם לסוג אחר קודם.`);
+      return;
+    }
+    if (!confirm(`למחוק את הסוג "${types[i].label}"?`)) return;
+    setTypes(types.filter((_, idx) => idx !== i)); markDirty("types");
+  }
+  function moveType(i: number, dir: -1 | 1) {
+    const j = i + dir;
+    if (j < 0 || j >= types.length) return;
+    const updated = [...types];
+    [updated[i], updated[j]] = [updated[j], updated[i]];
+    setTypes(updated); markDirty("types");
   }
 
   // ── Audience options (base + dynamic from tabs) ───────────────────
@@ -164,6 +219,14 @@ export function AdminClient({
   // ═════════════════════════════════════════════════════════════════
   // RENDER
   // ═════════════════════════════════════════════════════════════════
+
+  if (checkingSession) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--bg-color)" }}>
+        <p className="text-sm" style={{ color: "var(--text-sec)" }}>רגע…</p>
+      </div>
+    );
+  }
 
   // Login
   if (!authed) {
@@ -179,21 +242,25 @@ export function AdminClient({
             onChange={(e) => setPassword(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && tryAuth()}
             className="admin-input w-full mb-3" autoFocus />
-          {authError && <p className="text-xs text-center mb-3" style={{ color: "#f87171" }}>{authError}</p>}
+          {authError && <p className="text-xs text-center mb-3" style={{ color: "#ef4444" }}>{authError}</p>}
           <button onClick={tryAuth} disabled={authLoading || !password}
             className="w-full py-2.5 rounded-xl font-bold text-sm text-white"
             style={{ background: "linear-gradient(135deg,#6366f1,#8b5cf6)", opacity: authLoading||!password ? 0.6 : 1, cursor: authLoading||!password ? "not-allowed":"pointer" }}>
             {authLoading ? "..." : "כניסה"}
           </button>
+          <p className="text-xs text-center mt-4" style={{ color: "var(--text-muted)" }}>
+            נשארת מחוברת עד שתסגרי את הדפדפן
+          </p>
         </div>
       </div>
     );
   }
 
-  // Form overlay
+  // ── FORM OVERLAYS ────────────────────────────────────────────────
   if (editingIndex > -2) {
     const isNew = editingIndex === -1;
 
+    // ── Tab form ──
     if (formTarget === "tab") {
       const preset = COLOR_PRESETS[tabForm.colorPreset];
       return (
@@ -204,13 +271,11 @@ export function AdminClient({
               {isNew ? "כרטיסייה חדשה" : `עריכה: ${tabs[editingIndex]?.label}`}
             </h2>
             <div className="card-glass rounded-2xl p-6 space-y-5">
-              {/* Label */}
               <div>
                 <label className="admin-label">שם הכרטיסייה *</label>
                 <input value={tabForm.label} onChange={(e) => setTabForm((f) => ({ ...f, label: e.target.value }))}
                   className="admin-input w-full" placeholder="כלי מדריכים" />
               </div>
-              {/* Key */}
               <div>
                 <label className="admin-label">מזהה (key) — אותיות קטנות ומקפים בלבד *</label>
                 <input value={tabForm.key} onChange={(e) => setTabForm((f) => ({ ...f, key: e.target.value.toLowerCase().replace(/\s+/g, "-") }))}
@@ -218,13 +283,11 @@ export function AdminClient({
                   disabled={!isNew} style={{ opacity: isNew ? 1 : 0.5 }} />
                 {!isNew && <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>לא ניתן לשנות key קיים (ישפיע על שיוך כלים)</p>}
               </div>
-              {/* Emoji */}
               <div>
                 <label className="admin-label">אמוג&apos;י</label>
                 <input value={tabForm.emoji} onChange={(e) => setTabForm((f) => ({ ...f, emoji: e.target.value }))}
                   className="admin-input w-full" placeholder="🎓" style={{ fontSize: 20 }} />
               </div>
-              {/* Color preset */}
               <div>
                 <label className="admin-label">צבע</label>
                 <div className="flex gap-2 flex-wrap">
@@ -239,24 +302,21 @@ export function AdminClient({
                     );
                   })}
                 </div>
-                {/* Preview */}
                 <div className="mt-3">
                   <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-2xl text-sm font-bold text-white bg-gradient-to-l ${preset.color} ${preset.glowClass}`}>
                     <span>{tabForm.emoji}</span><span>{tabForm.label || "תצוגה מקדימה"}</span>
                   </span>
                 </div>
               </div>
-              {/* Show all */}
               <div className="flex items-center gap-3">
                 <button onClick={() => setTabForm((f) => ({ ...f, showAll: !f.showAll }))}
                   className="w-10 h-5 rounded-full relative shrink-0 transition-all"
-                  style={{ background: tabForm.showAll ? "#6366f1":"rgba(255,255,255,0.1)", border:"1px solid rgba(255,255,255,0.15)" }}>
+                  style={{ background: tabForm.showAll ? "#6366f1":"var(--toggle-off)", border:"1px solid var(--toggle-border)" }}>
                   <span className="absolute top-0.5 w-4 h-4 rounded-full bg-white transition-all"
                     style={{ right: tabForm.showAll ? "2px":"auto", left: tabForm.showAll ? "auto":"2px" }} />
                 </button>
                 <span className="text-sm" style={{ color:"var(--page-text)" }}>הצג את כל הכלים (סופר-סט)</span>
               </div>
-              {/* Actions */}
               <div className="flex gap-3 pt-1">
                 <button onClick={commitTab} disabled={!tabForm.label || !tabForm.key}
                   className="flex-1 py-2.5 rounded-xl font-bold text-sm text-white"
@@ -272,8 +332,116 @@ export function AdminClient({
       );
     }
 
-    // Asset form
+    // ── Type form ──
+    if (formTarget === "type") {
+      const hex = PRESET_HEX[typeForm.colorPreset];
+      const keyTaken = isNew && types.some((t) => t.key === typeForm.key);
+      const canSaveType = typeForm.label.trim() !== "" && /^[a-z0-9-]+$/.test(typeForm.key) && !keyTaken;
+      return (
+        <div className="min-h-screen" style={{ background: "var(--bg-color)" }}>
+          <div className="max-w-xl mx-auto px-6 py-8">
+            <button onClick={closeForm} className="text-sm mb-5 block" style={{ color: "var(--text-sec)" }}>← חזרה</button>
+            <h2 className="text-lg font-bold mb-5" style={{ color: "var(--page-text)" }}>
+              {isNew ? "סוג חדש" : `עריכה: ${types[editingIndex]?.label}`}
+            </h2>
+            <div className="card-glass rounded-2xl p-6 space-y-5">
+              <div>
+                <label className="admin-label">שם הסוג *</label>
+                <input value={typeForm.label}
+                  onChange={(e) => {
+                    const label = e.target.value;
+                    setTypeForm((f) => ({ ...f, label }));
+                  }}
+                  className="admin-input w-full" placeholder="אתר שיווקי" />
+              </div>
+              <div>
+                <label className="admin-label">מזהה (key) — אנגלית קטנה ומקפים *</label>
+                <input value={typeForm.key}
+                  onChange={(e) => setTypeForm((f) => ({ ...f, key: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "-") }))}
+                  className="admin-input w-full" placeholder="marketing-site" dir="ltr"
+                  disabled={!isNew} style={{ opacity: isNew ? 1 : 0.5 }} />
+                {!isNew && <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>לא ניתן לשנות key קיים (ישבור את השיוך של הכלים)</p>}
+                {keyTaken && <p className="text-xs mt-1" style={{ color: "#ef4444" }}>המזהה הזה כבר תפוס</p>}
+              </div>
+              <div>
+                <label className="admin-label">אמוג&apos;י</label>
+                <input value={typeForm.emoji} onChange={(e) => setTypeForm((f) => ({ ...f, emoji: e.target.value }))}
+                  className="admin-input w-full" placeholder="🌐" style={{ fontSize: 20 }} />
+              </div>
+              <div>
+                <label className="admin-label">איך הכרטיס יתנהג</label>
+                <div className="space-y-2">
+                  {BEHAVIORS.map((b) => (
+                    <button key={b.key} onClick={() => setTypeForm((f) => ({ ...f, behavior: b.key as TypeBehavior }))}
+                      className="w-full text-right px-4 py-2.5 rounded-xl border transition-all"
+                      style={typeForm.behavior === b.key
+                        ? { background: "rgba(99,102,241,0.14)", borderColor: "#6366f1" }
+                        : { background: "transparent", borderColor: "var(--card-border)" }}>
+                      <div className="text-sm font-bold" style={{ color: "var(--page-text)" }}>{b.label}</div>
+                      <div className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>{b.hint}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+              {typeForm.behavior !== "command" && (
+                <div>
+                  <label className="admin-label">טקסט על הכפתור</label>
+                  <input value={typeForm.btnLabel} onChange={(e) => setTypeForm((f) => ({ ...f, btnLabel: e.target.value }))}
+                    className="admin-input w-full" placeholder="פתח אתר" />
+                </div>
+              )}
+              <div>
+                <label className="admin-label">צבע</label>
+                <div className="flex gap-2 flex-wrap">
+                  {ALL_PRESETS.map((p) => (
+                    <button key={p} onClick={() => setTypeForm((f) => ({ ...f, colorPreset: p as ColorPreset }))}
+                      className="px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all"
+                      style={{ background: PRESET_HEX[p], color: "#fff", borderColor: "transparent",
+                               opacity: typeForm.colorPreset === p ? 1 : 0.35 }}>
+                      {PRESET_LABELS[p]}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Live preview of the card bits this type controls */}
+              <div className="rounded-xl p-4 space-y-3" style={{ background: "var(--step-bg)", border: "1px solid var(--empty-border)" }}>
+                <p className="text-xs font-bold" style={{ color: "var(--text-muted)" }}>תצוגה מקדימה</p>
+                <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-0.5 rounded-full"
+                  style={{ background: `${hex}24`, color: hex, border: `1px solid ${hex}4d` }}>
+                  <span>{typeForm.emoji}</span><span>{typeForm.label || "שם הסוג"}</span>
+                </span>
+                {typeForm.behavior === "command" ? (
+                  <div className="rounded-lg p-2.5 text-center" style={{ background: "var(--cmd-bg)", border: `1px solid ${hex}4d` }}>
+                    <span className="text-sm font-bold" style={{ color: hex, fontFamily: "'DM Mono', monospace" }} dir="ltr">/example</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center gap-2 text-sm font-bold py-2.5 px-4 rounded-xl text-white"
+                    style={{ background: hex, boxShadow: `0 6px 18px ${hex}59` }}>
+                    <span>{typeForm.behavior === "download" ? "⬇" : ""}</span>
+                    <span>{typeForm.btnLabel || "פתח"}</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex gap-3 pt-1">
+                <button onClick={commitType} disabled={!canSaveType}
+                  className="flex-1 py-2.5 rounded-xl font-bold text-sm text-white"
+                  style={{ background:"linear-gradient(135deg,#6366f1,#8b5cf6)", opacity:canSaveType?1:0.5, cursor:canSaveType?"pointer":"not-allowed" }}>
+                  {isNew ? "הוסף סוג" : "שמור"}
+                </button>
+                <button onClick={closeForm} className="px-5 py-2.5 rounded-xl text-sm font-semibold border"
+                  style={{ borderColor:"var(--card-border)", color:"var(--text-sec)", cursor:"pointer" }}>ביטול</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // ── Asset form ──
     const canSave = assetForm.name.trim() !== "" && assetForm.audience.length > 0;
+    const activeType = findType(types, assetForm.type);
     return (
       <div className="min-h-screen" style={{ background: "var(--bg-color)" }}>
         <div className="max-w-2xl mx-auto px-6 py-8">
@@ -286,31 +454,48 @@ export function AdminClient({
               <label className="admin-label">שם הכלי *</label>
               <input value={assetForm.name} onChange={(e) => updateAsset("name", e.target.value)} className="admin-input w-full" placeholder="Safe Play Hub" />
             </div>
+
             <div>
-              <label className="admin-label">סוג</label>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="admin-label" style={{ marginBottom: 0 }}>סוג</label>
+                <button onClick={() => { openTypeAdd(); }} className="text-xs font-semibold" style={{ color: "#6366f1" }}>
+                  + סוג חדש
+                </button>
+              </div>
               <div className="flex gap-2 flex-wrap">
-                {TYPES.map((t) => (
-                  <button key={t} onClick={() => updateAsset("type", t)}
-                    className="px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all"
-                    style={assetForm.type===t ? { background:"#6366f1", borderColor:"#6366f1", color:"#fff" } : { background:"transparent", borderColor:"var(--card-border)", color:"var(--text-sec)" }}>
-                    {TYPE_LABELS[t]}
+                {types.map((t) => (
+                  <button key={t.key} onClick={() => updateAsset("type", t.key)}
+                    className="px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all inline-flex items-center gap-1"
+                    style={assetForm.type === t.key
+                      ? { background: PRESET_HEX[t.colorPreset], borderColor: PRESET_HEX[t.colorPreset], color:"#fff" }
+                      : { background:"transparent", borderColor:"var(--card-border)", color:"var(--text-sec)" }}>
+                    <span>{t.emoji}</span><span>{t.label}</span>
                   </button>
                 ))}
               </div>
             </div>
+
             <div>
               <label className="admin-label">תיאור</label>
               <textarea value={assetForm.description} onChange={(e) => updateAsset("description", e.target.value)}
                 rows={2} className="admin-input w-full" style={{ resize:"none" }} placeholder="תיאור קצר..." />
             </div>
+
             <div>
-              <label className="admin-label">קישור גישה (URL)</label>
-              <input value={assetForm.access} onChange={(e) => updateAsset("access", e.target.value)} className="admin-input w-full" placeholder="https://..." dir="ltr" />
+              <label className="admin-label">
+                {activeType.behavior === "command" ? "הפקודה ב-Claude Code"
+                  : activeType.behavior === "download" ? "קישור להורדת הקובץ"
+                  : "קישור גישה (URL)"}
+              </label>
+              <input value={assetForm.access} onChange={(e) => updateAsset("access", e.target.value)} className="admin-input w-full"
+                placeholder={activeType.behavior === "command" ? "/elearning" : "https://..."} dir="ltr" />
             </div>
+
             <div>
               <label className="admin-label">הערת גישה / סיסמה</label>
               <input value={assetForm.access_note ?? ""} onChange={(e) => updateAsset("access_note", e.target.value||null)} className="admin-input w-full" placeholder="סיסמה: HB@..." />
             </div>
+
             <div>
               <label className="admin-label">קהל יעד *</label>
               <div className="flex gap-2 flex-wrap">
@@ -323,10 +508,11 @@ export function AdminClient({
                 ))}
               </div>
             </div>
+
             <div className="flex items-center gap-3">
               <button onClick={() => { updateAsset("has_guide", !assetForm.has_guide); if(assetForm.has_guide) updateAsset("guide_url",null); }}
                 className="w-10 h-5 rounded-full relative shrink-0 transition-all"
-                style={{ background: assetForm.has_guide ? "#6366f1":"rgba(255,255,255,0.1)", border:"1px solid rgba(255,255,255,0.15)" }}>
+                style={{ background: assetForm.has_guide ? "#6366f1":"var(--toggle-off)", border:"1px solid var(--toggle-border)" }}>
                 <span className="absolute top-0.5 w-4 h-4 rounded-full bg-white transition-all"
                   style={{ right: assetForm.has_guide ? "2px":"auto", left: assetForm.has_guide ? "auto":"2px" }} />
               </button>
@@ -336,16 +522,60 @@ export function AdminClient({
               <div>
                 <label className="admin-label">קישור למדריך</label>
                 <input value={assetForm.guide_url ?? ""} onChange={(e) => updateAsset("guide_url", e.target.value||null)} className="admin-input w-full" placeholder="https://youtu.be/..." dir="ltr" />
+                {!assetForm.guide_url && (
+                  <p className="text-xs mt-1" style={{ color:"var(--text-muted)" }}>בלי קישור — כפתור המדריך לא יופיע בכרטיס</p>
+                )}
               </div>
             )}
+
+            {/* Install instructions — optional, free text */}
             <div>
-              <label className="admin-label">קישור להתקנה (GitHub)</label>
-              <input value={assetForm.install_url ?? ""} onChange={(e) => updateAsset("install_url", e.target.value||null)} className="admin-input w-full" placeholder="https://github.com/..." dir="ltr" />
+              <label className="admin-label">הוראות התקנה (אופציונלי)</label>
+              <textarea value={assetForm.install_notes ?? ""} onChange={(e) => updateAsset("install_notes", e.target.value||null)}
+                rows={4} className="admin-input w-full" style={{ resize:"vertical" }}
+                placeholder={"שורה אחת לכל שלב.\nאם תשאירי ריק — לא יופיעו הוראות בכרטיס."} />
+              <div className="flex gap-2 flex-wrap mt-2">
+                {INSTALL_PRESETS.map((p) => (
+                  <button key={p.label} onClick={() => updateAsset("install_notes", p.text)}
+                    className="text-xs px-2.5 py-1 rounded-lg border"
+                    style={{ borderColor:"var(--card-border)", color:"var(--text-sec)" }}>
+                    הדבק: {p.label}
+                  </button>
+                ))}
+                {assetForm.install_notes && (
+                  <button onClick={() => updateAsset("install_notes", null)}
+                    className="text-xs px-2.5 py-1 rounded-lg border"
+                    style={{ borderColor:"rgba(239,68,68,0.3)", color:"#ef4444" }}>
+                    נקה
+                  </button>
+                )}
+              </div>
             </div>
+
+            {/* Advanced — GitHub links, almost always empty */}
             <div>
-              <label className="admin-label">קישור לתבנית / קוד מקור (GitHub)</label>
-              <input value={assetForm.template_url ?? ""} onChange={(e) => updateAsset("template_url", e.target.value||null)} className="admin-input w-full" placeholder="https://github.com/..." dir="ltr" />
+              <button onClick={() => setShowAdvanced((v) => !v)}
+                className="text-xs font-semibold flex items-center gap-1.5" style={{ color:"var(--text-sec)" }}>
+                <span>{showAdvanced ? "▾" : "◂"}</span>
+                <span>קישורי גיטהאב (אופציונלי)</span>
+              </button>
+              {showAdvanced && (
+                <div className="space-y-4 mt-3 pr-3" style={{ borderRight: "2px solid var(--card-border)" }}>
+                  <div>
+                    <label className="admin-label">קובץ התקנה להורדה</label>
+                    <input value={assetForm.install_url ?? ""} onChange={(e) => updateAsset("install_url", e.target.value||null)} className="admin-input w-full" placeholder="https://github.com/..." dir="ltr" />
+                  </div>
+                  <div>
+                    <label className="admin-label">קוד מקור / תבנית — מוצג רק בטאב סטודיו</label>
+                    <input value={assetForm.template_url ?? ""} onChange={(e) => updateAsset("template_url", e.target.value||null)} className="admin-input w-full" placeholder="https://github.com/..." dir="ltr" />
+                  </div>
+                  <p className="text-xs" style={{ color:"var(--text-muted)" }}>
+                    שדות ריקים פשוט לא מופיעים בכרטיס.
+                  </p>
+                </div>
+              )}
             </div>
+
             <div className="flex gap-3 pt-1">
               <button onClick={commitAsset} disabled={!canSave}
                 className="flex-1 py-2.5 rounded-xl font-bold text-sm text-white"
@@ -363,10 +593,19 @@ export function AdminClient({
 
   // ── Main panel ────────────────────────────────────────────────────
   const NAV: { key: Section; label: string; emoji: string }[] = [
-    { key: "assets",   label: "כלים",       emoji: "🧰" },
-    { key: "tabs",     label: "כרטיסיות",   emoji: "🗂" },
-    { key: "settings", label: "הגדרות",     emoji: "⚙️" },
+    { key: "assets",   label: "כלים",     emoji: "🧰" },
+    { key: "types",    label: "סוגים",    emoji: "🏷" },
+    { key: "tabs",     label: "כרטיסיות", emoji: "🗂" },
+    { key: "settings", label: "הגדרות",   emoji: "⚙️" },
   ];
+
+  const publishBtn = (target: string, data: unknown) => dirty.has(target) && (
+    <button onClick={() => saveTarget(target, data)} disabled={saving}
+      className="px-4 py-2 rounded-xl text-sm font-bold text-white"
+      style={{ background:"linear-gradient(135deg,#10b981,#059669)", opacity:saving?0.7:1, cursor:saving?"not-allowed":"pointer" }}>
+      {saving ? "שומר..." : "⬆ פרסם"}
+    </button>
+  );
 
   return (
     <div className="min-h-screen" style={{ background: "var(--bg-color)" }}>
@@ -377,12 +616,16 @@ export function AdminClient({
           <div>
             <h1 className="text-xl font-bold" style={{ color:"var(--page-text)" }}>Admin Panel</h1>
             <p className="text-sm mt-0.5" style={{ color:"var(--text-sec)" }}>
-              {dirty.size > 0 && <span className="text-amber-400 font-semibold">● שינויים לא מפורסמים · </span>}
+              {dirty.size > 0 && <span className="text-amber-500 font-semibold">● שינויים לא מפורסמים · </span>}
               HB Tools Hub
             </p>
           </div>
-          <a href="/" className="px-4 py-2 rounded-xl text-sm font-semibold border"
-            style={{ borderColor:"var(--card-border)", color:"var(--text-sec)" }}>← לאתר</a>
+          <div className="flex gap-2">
+            <button onClick={logout} className="px-4 py-2 rounded-xl text-sm font-semibold border"
+              style={{ borderColor:"var(--card-border)", color:"var(--text-sec)", cursor:"pointer" }}>התנתקות</button>
+            <Link href="/" className="px-4 py-2 rounded-xl text-sm font-semibold border"
+              style={{ borderColor:"var(--card-border)", color:"var(--text-sec)" }}>← לאתר</Link>
+          </div>
         </div>
 
         {/* Save message */}
@@ -390,13 +633,13 @@ export function AdminClient({
           <div className="mb-4 px-4 py-3 rounded-xl text-sm font-semibold"
             style={{ background: saveMsg.ok ? "rgba(16,185,129,0.12)":"rgba(239,68,68,0.12)",
               border:`1px solid ${saveMsg.ok?"rgba(16,185,129,0.3)":"rgba(239,68,68,0.3)"}`,
-              color: saveMsg.ok ? "#6ee7b7":"#fca5a5" }}>
+              color: saveMsg.ok ? "#059669":"#dc2626" }}>
             {saveMsg.text}
           </div>
         )}
 
         {/* Section nav */}
-        <div className="flex gap-2 mb-6">
+        <div className="flex gap-2 mb-6 flex-wrap">
           {NAV.map((n) => (
             <button key={n.key} onClick={() => setSection(n.key)}
               className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold border transition-all"
@@ -404,8 +647,7 @@ export function AdminClient({
                 ? { background:"#6366f1", borderColor:"#6366f1", color:"#fff" }
                 : { background:"transparent", borderColor:"var(--card-border)", color:"var(--text-sec)" }}>
               <span>{n.emoji}</span><span>{n.label}</span>
-              {dirty.has(n.key==="assets"?"assets":n.key==="tabs"?"tabs":"settings") &&
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 ml-1" />}
+              {dirty.has(n.key) && <span className="w-1.5 h-1.5 rounded-full bg-amber-400 ml-1" />}
             </button>
           ))}
         </div>
@@ -416,38 +658,85 @@ export function AdminClient({
             <div className="flex justify-between items-center mb-3">
               <p className="text-sm font-semibold" style={{ color:"var(--text-sec)" }}>{assets.length} כלים</p>
               <div className="flex gap-2">
-                {dirty.has("assets") && (
-                  <button onClick={() => saveTarget("assets", assets)} disabled={saving}
-                    className="px-4 py-2 rounded-xl text-sm font-bold text-white"
-                    style={{ background:"linear-gradient(135deg,#10b981,#059669)", opacity:saving?0.7:1, cursor:saving?"not-allowed":"pointer" }}>
-                    {saving ? "שומר..." : "⬆ פרסם"}
-                  </button>
-                )}
+                {publishBtn("assets", assets)}
                 <button onClick={openAssetAdd} className="px-4 py-2 rounded-xl text-sm font-bold text-white"
                   style={{ background:"linear-gradient(135deg,#6366f1,#8b5cf6)", cursor:"pointer" }}>+ כלי חדש</button>
               </div>
             </div>
             <div className="space-y-2">
-              {assets.map((asset, i) => (
-                <div key={i} className="card-glass rounded-xl px-4 py-3 flex items-center gap-3">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-semibold text-sm" style={{ color:"var(--page-text)" }}>{asset.name}</span>
-                      <span className="text-xs px-2 py-0.5 rounded-full" style={{ background:"rgba(99,102,241,0.18)", color:"#a5b4fc" }}>
-                        {TYPE_LABELS[asset.type]}
-                      </span>
-                      {!asset.access && <span className="text-xs px-2 py-0.5 rounded-full" style={{ background:"rgba(251,191,36,0.15)", color:"#fbbf24" }}>ללא קישור</span>}
+              {assets.map((asset, i) => {
+                const t = findType(types, asset.type);
+                return (
+                  <div key={i} className="card-glass rounded-xl px-4 py-3 flex items-center gap-3">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-semibold text-sm" style={{ color:"var(--page-text)" }}>{asset.name}</span>
+                        <span className="text-xs px-2 py-0.5 rounded-full"
+                          style={{ background:`${PRESET_HEX[t.colorPreset]}24`, color: PRESET_HEX[t.colorPreset] }}>
+                          {t.emoji} {t.label}
+                        </span>
+                        {!asset.access && <span className="text-xs px-2 py-0.5 rounded-full" style={{ background:"rgba(251,191,36,0.15)", color:"#d97706" }}>ללא קישור</span>}
+                      </div>
+                      <p className="text-xs mt-0.5 truncate" style={{ color:"var(--text-muted)" }}>
+                        {asset.audience.join(" · ")}{asset.access && ` · ${asset.access.replace("https://","").split("/")[0]}`}
+                      </p>
                     </div>
-                    <p className="text-xs mt-0.5 truncate" style={{ color:"var(--text-muted)" }}>
-                      {asset.audience.join(" · ")}{asset.access && ` · ${asset.access.replace("https://","").split("/")[0]}`}
-                    </p>
+                    <button onClick={() => openAssetEdit(i)} className="shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold border"
+                      style={{ borderColor:"var(--card-border)", color:"var(--text-sec)", cursor:"pointer" }}>עריכה</button>
+                    <button onClick={() => deleteAsset(i)} className="shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold border"
+                      style={{ borderColor:"rgba(239,68,68,0.25)", color:"#ef4444", cursor:"pointer" }}>מחק</button>
                   </div>
-                  <button onClick={() => openAssetEdit(i)} className="shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold border"
-                    style={{ borderColor:"var(--card-border)", color:"var(--text-sec)", cursor:"pointer" }}>עריכה</button>
-                  <button onClick={() => deleteAsset(i)} className="shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold border"
-                    style={{ borderColor:"rgba(239,68,68,0.25)", color:"#f87171", cursor:"pointer" }}>מחק</button>
-                </div>
-              ))}
+                );
+              })}
+            </div>
+          </>
+        )}
+
+        {/* ── TYPES ── */}
+        {section === "types" && (
+          <>
+            <div className="flex justify-between items-center mb-3">
+              <p className="text-sm font-semibold" style={{ color:"var(--text-sec)" }}>{types.length} סוגים</p>
+              <div className="flex gap-2">
+                {publishBtn("types", types)}
+                <button onClick={openTypeAdd} className="px-4 py-2 rounded-xl text-sm font-bold text-white"
+                  style={{ background:"linear-gradient(135deg,#6366f1,#8b5cf6)", cursor:"pointer" }}>+ סוג חדש</button>
+              </div>
+            </div>
+            <p className="text-xs mb-4" style={{ color:"var(--text-muted)" }}>
+              הסוג קובע את הצבע, התווית והכפתור בכרטיס. הסדר כאן הוא הסדר בטופס עריכת כלי.
+            </p>
+            <div className="space-y-2">
+              {types.map((t, i) => {
+                const count = assets.filter((a) => a.type === t.key).length;
+                return (
+                  <div key={t.key} className="card-glass rounded-xl px-4 py-3 flex items-center gap-3">
+                    <div className="flex gap-1 shrink-0">
+                      <button onClick={() => moveType(i, -1)} disabled={i===0}
+                        className="w-6 h-6 rounded text-xs flex items-center justify-center"
+                        style={{ background:"var(--copy-bg)", color:"var(--text-sec)", opacity:i===0?0.3:1, cursor:i===0?"not-allowed":"pointer" }}>↑</button>
+                      <button onClick={() => moveType(i, 1)} disabled={i===types.length-1}
+                        className="w-6 h-6 rounded text-xs flex items-center justify-center"
+                        style={{ background:"var(--copy-bg)", color:"var(--text-sec)", opacity:i===types.length-1?0.3:1, cursor:i===types.length-1?"not-allowed":"pointer" }}>↓</button>
+                    </div>
+                    <span className="shrink-0 text-xs font-bold px-2.5 py-1 rounded-full text-white"
+                      style={{ background: PRESET_HEX[t.colorPreset] }}>
+                      {t.emoji} {t.label}
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs truncate" style={{ color:"var(--text-muted)" }}>
+                        {BEHAVIOR_LABELS[t.behavior]}
+                        {t.behavior !== "command" && ` · "${t.btnLabel}"`}
+                        {` · ${count} כלים`}
+                      </p>
+                    </div>
+                    <button onClick={() => openTypeEdit(i)} className="shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold border"
+                      style={{ borderColor:"var(--card-border)", color:"var(--text-sec)", cursor:"pointer" }}>עריכה</button>
+                    <button onClick={() => deleteType(i)} className="shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold border"
+                      style={{ borderColor:"rgba(239,68,68,0.25)", color:"#ef4444", cursor:"pointer" }}>מחק</button>
+                  </div>
+                );
+              })}
             </div>
           </>
         )}
@@ -458,13 +747,7 @@ export function AdminClient({
             <div className="flex justify-between items-center mb-3">
               <p className="text-sm font-semibold" style={{ color:"var(--text-sec)" }}>{tabs.length} כרטיסיות</p>
               <div className="flex gap-2">
-                {dirty.has("tabs") && (
-                  <button onClick={() => saveTarget("tabs", tabs)} disabled={saving}
-                    className="px-4 py-2 rounded-xl text-sm font-bold text-white"
-                    style={{ background:"linear-gradient(135deg,#10b981,#059669)", opacity:saving?0.7:1, cursor:saving?"not-allowed":"pointer" }}>
-                    {saving ? "שומר..." : "⬆ פרסם"}
-                  </button>
-                )}
+                {publishBtn("tabs", tabs)}
                 <button onClick={openTabAdd} className="px-4 py-2 rounded-xl text-sm font-bold text-white"
                   style={{ background:"linear-gradient(135deg,#6366f1,#8b5cf6)", cursor:"pointer" }}>+ כרטיסייה חדשה</button>
               </div>
@@ -477,10 +760,10 @@ export function AdminClient({
                     <div className="flex gap-1 shrink-0">
                       <button onClick={() => moveTab(i, -1)} disabled={i===0}
                         className="w-6 h-6 rounded text-xs flex items-center justify-center"
-                        style={{ background:"rgba(255,255,255,0.07)", color:"var(--text-sec)", opacity:i===0?0.3:1, cursor:i===0?"not-allowed":"pointer" }}>↑</button>
+                        style={{ background:"var(--copy-bg)", color:"var(--text-sec)", opacity:i===0?0.3:1, cursor:i===0?"not-allowed":"pointer" }}>↑</button>
                       <button onClick={() => moveTab(i, 1)} disabled={i===tabs.length-1}
                         className="w-6 h-6 rounded text-xs flex items-center justify-center"
-                        style={{ background:"rgba(255,255,255,0.07)", color:"var(--text-sec)", opacity:i===tabs.length-1?0.3:1, cursor:i===tabs.length-1?"not-allowed":"pointer" }}>↓</button>
+                        style={{ background:"var(--copy-bg)", color:"var(--text-sec)", opacity:i===tabs.length-1?0.3:1, cursor:i===tabs.length-1?"not-allowed":"pointer" }}>↓</button>
                     </div>
                     <span className={`shrink-0 text-xs font-bold px-2.5 py-1 rounded-full text-white bg-gradient-to-l ${pr.color}`}>
                       {tab.emoji} {tab.label}
@@ -493,7 +776,7 @@ export function AdminClient({
                     <button onClick={() => openTabEdit(i)} className="shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold border"
                       style={{ borderColor:"var(--card-border)", color:"var(--text-sec)", cursor:"pointer" }}>עריכה</button>
                     <button onClick={() => deleteTab(i)} className="shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold border"
-                      style={{ borderColor:"rgba(239,68,68,0.25)", color:"#f87171", cursor:"pointer" }}>מחק</button>
+                      style={{ borderColor:"rgba(239,68,68,0.25)", color:"#ef4444", cursor:"pointer" }}>מחק</button>
                   </div>
                 );
               })}

@@ -1,14 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { redisSet } from "@/lib/redis";
+import { isAuthed } from "@/lib/auth";
 
-const VALID_TARGETS = ["assets", "tabs", "settings"] as const;
+const VALID_TARGETS = ["assets", "tabs", "types", "settings"] as const;
 type Target = (typeof VALID_TARGETS)[number];
 
 export async function POST(req: NextRequest) {
   try {
     const { password, target, data } = await req.json();
 
-    if (password !== process.env.ADMIN_PASSWORD) {
+    // Either a live session cookie, or the password posted directly.
+    const authorized = isAuthed(req) || (!!password && password === process.env.ADMIN_PASSWORD);
+    if (!authorized) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
