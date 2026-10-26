@@ -243,6 +243,8 @@ body > * { position: relative; z-index: 1; }
    GLASSMORPHISM CARD
    ================================================================ */
 .card-glass {
+  position: relative;
+  overflow: hidden; /* keeps the corner orb (::after) inside the card */
   background: var(--card-bg);
   border: 1px solid var(--card-border);
   box-shadow: var(--card-shadow);

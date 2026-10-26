@@ -73,6 +73,44 @@ export function AdminClient({
     return () => { cancelled = true; };
   }, []);
 
+  // One-time switch to the 7-tab structure — offered until the live tabs have it.
+  const [migratePending, setMigratePending] = useState(false);
+  const [migrating, setMigrating] = useState(false);
+  const [migrateMsg, setMigrateMsg] = useState<{ ok: boolean; text: string } | null>(null);
+  useEffect(() => {
+    if (!authed) return;
+    fetch("/api/admin/migrate").then((r) => r.json()).then((d) => setMigratePending(!!d?.pending)).catch(() => {});
+  }, [authed]);
+
+  async function runMigration() {
+    if (!confirm("להעלות את המבנה החדש (7 כרטיסיות, 41 כלים)?\nקודם יורד אליך קובץ גיבוי של המצב הנוכחי.")) return;
+    setMigrating(true); setMigrateMsg(null);
+    try {
+      // 1. Backup first — saved to the device before anything changes.
+      const backup = await fetch("/api/admin/export");
+      if (!backup.ok) throw new Error("הגיבוי נכשל — לא שיניתי כלום");
+      const url = URL.createObjectURL(await backup.blob());
+      const a = document.createElement("a");
+      a.href = url; a.download = `hb-backup-${new Date().toISOString().slice(0, 16).replace(/[:T]/g, "-")}.json`;
+      document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+
+      // 2. Switch — the server refuses if anything was edited since 26.10.
+      const res = await fetch("/api/admin/migrate", { method: "POST" });
+      const d = await res.json();
+      if (!res.ok) {
+        const extra = [d.added?.length ? `נוספו: ${d.added.join(", ")}` : "", d.removed?.length ? `נמחקו: ${d.removed.join(", ")}` : ""]
+          .filter(Boolean).join(" · ");
+        throw new Error(`${d.error ?? "העדכון נכשל"}${extra ? ` (${extra})` : ""}`);
+      }
+      setMigrateMsg({ ok: true, text: `✓ המבנה החדש באוויר — ${d.tabs} כרטיסיות, ${d.assets} כלים. טוען מחדש…` });
+      setTimeout(() => window.location.reload(), 1800);
+    } catch (e) {
+      setMigrateMsg({ ok: false, text: e instanceof Error ? e.message : "העדכון נכשל" });
+    } finally {
+      setMigrating(false);
+    }
+  }
+
   // Navigation
   const [section, setSection] = useState<Section>("assets");
 
@@ -718,6 +756,26 @@ export function AdminClient({
               style={{ borderColor:"var(--card-border)", color:"var(--text-sec)" }}>← לאתר</Link>
           </div>
         </div>
+
+        {/* One-time switch to the new structure */}
+        {(migratePending || migrateMsg) && (
+          <div className="card-glass rounded-2xl p-5 mb-5 space-y-3">
+            <p className="text-sm font-bold" style={{ color:"var(--page-text)" }}>המבנה החדש מוכן להעלאה</p>
+            <p className="text-xs leading-relaxed" style={{ color:"var(--text-sec)" }}>
+              7 כרטיסיות חדשות, 41 כלים עם שמות בעברית ובאנגלית, התיאורים שאישרת, סיסמאות וקישורים מסודרים.
+              לפני ההעלאה יורד אליך קובץ גיבוי של המצב הנוכחי. אם משהו נערך באדמין מאז 26.10 — ההעלאה תיעצר ולא תדרוס אותו.
+            </p>
+            {migrateMsg && (
+              <p className="text-sm font-semibold" style={{ color: migrateMsg.ok ? "#059669" : "#dc2626" }}>{migrateMsg.text}</p>
+            )}
+            {migratePending && !migrateMsg?.ok && (
+              <button onClick={runMigration} disabled={migrating}
+                className="btn-brand w-full py-3 rounded-xl text-sm font-bold" style={{ opacity: migrating ? 0.6 : 1 }}>
+                {migrating ? "מעלה…" : "גיבוי + העלאת המבנה החדש"}
+              </button>
+            )}
+          </div>
+        )}
 
         {/* Save message */}
         {saveMsg && (
