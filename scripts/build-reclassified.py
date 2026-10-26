@@ -108,9 +108,6 @@ LINKS = {
     8:  [L("סרטון הדרכה", "video", "https://youtu.be/wwTH1ty5jzY")],
     10: [L("סרטון הדרכה", "video", "https://youtu.be/E_KMQrCAVz4"),
          L("קוד מקור", "code", "https://github.com/hbconsulting00-sketch/hb-mini-lms")],
-    11: [L("תבנית בגיטהאב", "code", "https://github.com/hbconsulting00-sketch/hbc-onepager")],
-    12: [L("תבנית בגיטהאב", "code", "https://github.com/hbconsulting00-sketch/hb-lead-magnet")],
-    13: [L("תבנית בגיטהאב", "code", "https://github.com/hbconsulting00-sketch/hb-chatbot-backend")],
     15: [L("קבצי הסקיל", "download", "https://github.com/hbconsulting00-sketch/elearning-builder-4")],
     16: [L("קבצי הסקיל", "download", "https://github.com/hbconsulting00-sketch/hb-tools-hub/tree/main/skills/find-skills")],
     17: [L("קבצי הסקיל", "download", "https://github.com/hbconsulting00-sketch/hb-tools-hub/tree/main/skills/frontend-design")],
@@ -125,8 +122,14 @@ LINKS = {
     39: [L("תיקיית הריכוז בדרייב", "folder", "https://drive.google.com/drive/folders/1WJQ9obndGtUb7-hfJpYbMGXQe9tJB1mC?usp=drive_link")],
     43: [L("מדריך שימוש", "book", "https://claude.ai/artifact/TwTG3yaRbycoYnNBJa1FxR")],
 }
-# The RTL Fixer's main button downloads the ZIP directly.
-ACCESS = {28: "https://github.com/hbconsulting00-sketch/rtl-fixer-extension/raw/main/rtl-fixer-extension.zip"}
+# The RTL Fixer's main button downloads the ZIP directly; the three templates
+# live only on GitHub, so their main button opens the repo.
+ACCESS = {
+    28: "https://github.com/hbconsulting00-sketch/rtl-fixer-extension/raw/main/rtl-fixer-extension.zip",
+    11: "https://github.com/hbconsulting00-sketch/hbc-onepager",
+    12: "https://github.com/hbconsulting00-sketch/hb-lead-magnet",
+    13: "https://github.com/hbconsulting00-sketch/hb-chatbot-backend",
+}
 
 assets = []
 for n, a in enumerate(backup["assets"], 1):

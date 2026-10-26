@@ -261,7 +261,7 @@
     "name": "דף הצגה לארגון",
     "type": "tool",
     "description": "תבנית לעמוד הצגה קצר של הארגון — פרופיל, שירותים, קשר. כשלקוח מבקש \"משהו לשלוח\".",
-    "access": "",
+    "access": "https://github.com/hbconsulting00-sketch/hbc-onepager",
     "access_note": null,
     "audience": [
       "marketing"
@@ -273,19 +273,13 @@
     "added_by": "admin",
     "name_en": "HBC Onepager",
     "codes": [],
-    "links": [
-      {
-        "label": "תבנית בגיטהאב",
-        "url": "https://github.com/hbconsulting00-sketch/hbc-onepager",
-        "icon": "code"
-      }
-    ]
+    "links": []
   },
   {
     "name": "מגנט לידים",
     "type": "tool",
     "description": "תבנית לכלי שיווקי שמושך לידים. כשרוצים להעלות קמפיין עם ערך ללקוח.",
-    "access": "",
+    "access": "https://github.com/hbconsulting00-sketch/hb-lead-magnet",
     "access_note": null,
     "audience": [
       "marketing"
@@ -297,19 +291,13 @@
     "added_by": "admin",
     "name_en": "Lead Magnet",
     "codes": [],
-    "links": [
-      {
-        "label": "תבנית בגיטהאב",
-        "url": "https://github.com/hbconsulting00-sketch/hb-lead-magnet",
-        "icon": "code"
-      }
-    ]
+    "links": []
   },
   {
     "name": "צ'אטבוט ייעודי",
     "type": "tool",
     "description": "תבנית לצ'אטבוט ייעודי — שכפלי, חברי ל-knowledge base משלך ופרסמי. מתאים ללומדה, ללקוח או לאתר.",
-    "access": "",
+    "access": "https://github.com/hbconsulting00-sketch/hb-chatbot-backend",
     "access_note": null,
     "audience": [
       "studio"
@@ -321,13 +309,7 @@
     "added_by": "admin",
     "name_en": "HB Chatbot",
     "codes": [],
-    "links": [
-      {
-        "label": "תבנית בגיטהאב",
-        "url": "https://github.com/hbconsulting00-sketch/hb-chatbot-backend",
-        "icon": "code"
-      }
-    ]
+    "links": []
   },
   {
     "name": "בונה לומדות",
