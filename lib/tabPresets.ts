@@ -7,6 +7,8 @@ export interface TabConfig {
   key: string;
   label: string;
   emoji: string;
+  /** Line-icon key from lib/icons.tsx. When empty the emoji is shown instead. */
+  icon?: string;
   colorPreset: ColorPreset;
   showAll?: boolean;
 }

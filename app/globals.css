@@ -6,108 +6,165 @@
    Light mode: add class="light" to <html>
    ================================================================ */
 :root {
-  --bg-color: #080d18;
-  --page-text: #e8edf6;
-  --text-sec: #96a3b8;
-  --text-muted: #5a6880;
+  /* HB brand kit v1.1 — dark mode is the default (preferred by the kit) */
+  --hb-deep: #190028;      /* P400 Deep Violet */
+  --hb-midnight: #11001C;  /* P500 */
+  --hb-imperial: #3A015C;  /* P100 Imperial Purple */
+  --hb-p200: #32004F;
+  --hb-p300: #220135;
+  --hb-blue: #1C4F8C;
+  --hb-violet: #6F2C88;
+  --hb-lavender: #C9A7F5;
+  --hb-sky: #7FB0EE;
+  --hb-amber: #F2A93B;
+  --hb-lilac: #F5F2FA;
+  --grad-brand: linear-gradient(90deg, #1C4F8C 0%, #6F2C88 100%);
+  --grad-aurora: linear-gradient(90deg, #7FB0EE 0%, #C9A7F5 100%);
 
-  /* Page background — layered gradient, no grid */
+  --bg-color: var(--hb-midnight);
+  --page-text: #FFFFFF;
+  --text-sec: #CFC3E0;
+  --text-muted: #9584AE;
+  --accent: var(--hb-lavender);
+  --hairline: rgba(201,167,245,0.22);
+
+  /* Midnight Violet, lit from the top-right, plus one soft blue orb */
   --bg-layers:
-    radial-gradient(1200px 760px at 88% -8%,  rgba(99, 102, 241, 0.30), transparent 62%),
-    radial-gradient(1000px 700px at 4% 8%,    rgba(14, 165, 233, 0.20), transparent 60%),
-    radial-gradient(900px 680px at 50% 108%,  rgba(168, 85, 247, 0.20), transparent 62%),
-    linear-gradient(170deg, #0a1020 0%, #080d18 48%, #070b14 100%);
+    radial-gradient(1100px 760px at 92% -12%, rgba(58,1,92,0.95) 0%, rgba(34,1,53,0.7) 38%, transparent 70%),
+    radial-gradient(700px 520px at 4% 96%, rgba(28,79,140,0.22), transparent 65%),
+    linear-gradient(180deg, #190028 0%, #11001C 100%);
 
-  /* Cards */
-  --card-bg: linear-gradient(152deg, rgba(255,255,255,0.095) 0%, rgba(255,255,255,0.032) 55%, rgba(255,255,255,0.022) 100%);
-  --card-border: rgba(255,255,255,0.12);
+  /* Glass cards: P100 → P300, Lavender hairline, deep shadow, glossy top */
+  --card-bg: linear-gradient(160deg, rgba(58,1,92,0.72) 0%, rgba(43,1,68,0.62) 45%, rgba(34,1,53,0.58) 100%);
+  --card-border: rgba(201,167,245,0.24);
+  --card-border-hover: rgba(201,167,245,0.5);
   --card-shadow:
-    0 1px 2px rgba(0,0,0,0.3),
-    0 8px 28px rgba(0,0,0,0.42),
-    inset 0 1px 0 rgba(255,255,255,0.1);
+    inset 0 1px 0 rgba(255,255,255,0.12),
+    inset 0 -1px 0 rgba(0,0,0,0.25),
+    0 2px 6px rgba(5,0,10,0.45),
+    0 14px 36px rgba(5,0,10,0.55);
   --card-shadow-hover:
-    0 2px 4px rgba(0,0,0,0.3),
-    0 22px 56px rgba(0,0,0,0.6),
-    inset 0 1px 0 rgba(255,255,255,0.14);
-  --card-gloss: linear-gradient(180deg, rgba(255,255,255,0.085) 0%, rgba(255,255,255,0.02) 42%, transparent 100%);
-  --card-blur: blur(26px) saturate(165%);
+    inset 0 1px 0 rgba(255,255,255,0.18),
+    0 4px 10px rgba(5,0,10,0.5),
+    0 26px 60px rgba(5,0,10,0.6),
+    0 0 0 1px rgba(201,167,245,0.18),
+    0 0 46px rgba(111,44,136,0.38);
+  --card-gloss: linear-gradient(175deg, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0.05) 28%, transparent 52%);
+  --card-blur: blur(22px) saturate(150%);
 
-  /* Skill command */
-  --cmd-bg: rgba(0,0,0,0.42);
-  --cmd-border: rgba(16,185,129,0.28);
-  --cmd-label: #5a6880;
-  --step-bg: rgba(255,255,255,0.045);
-  --step-text: #96a3b8;
+  /* Wells inside cards (command box, steps) */
+  --well-bg: rgba(17,0,28,0.55);
+  --well-border: rgba(201,167,245,0.16);
 
-  /* Buttons */
-  --copy-bg: rgba(255,255,255,0.07);
-  --copy-hover: rgba(255,255,255,0.13);
-  --copy-border: rgba(255,255,255,0.1);
-  --copy-text: #96a3b8;
-  --pass-bg: rgba(255,255,255,0.05);
-  --pass-border: rgba(255,255,255,0.1);
-  --pass-text: #8b97ab;
-  --empty-bg: rgba(0,0,0,0.26);
-  --empty-border: rgba(255,255,255,0.09);
+  /* Icon rings and tags */
+  --ring-border: rgba(201,167,245,0.4);
+  --ring-bg: rgba(201,167,245,0.08);
+  --ring-icon: var(--hb-lavender);
+  --tag-cat-bg: rgba(201,167,245,0.14);
+  --tag-cat-border: rgba(201,167,245,0.34);
+  --tag-cat-text: var(--hb-lavender);
+  --tag-type-bg: rgba(255,255,255,0.05);
+  --tag-type-text: #9E8FB5;
 
-  /* Misc */
-  --footer-border: rgba(255,255,255,0.06);
-  --footer-text: #3d4a60;
-  --divider-opacity: 0.4;
-  --toggle-bg: rgba(255,255,255,0.07);
-  --toggle-border: rgba(255,255,255,0.14);
-  --toggle-hover: rgba(255,255,255,0.13);
+  /* Ghost buttons */
+  --ghost-bg: rgba(255,255,255,0.05);
+  --ghost-hover: rgba(201,167,245,0.14);
+  --ghost-border: rgba(201,167,245,0.2);
+  --ghost-text: #CFC3E0;
+
+  /* Tabs */
+  --tab-bg: linear-gradient(160deg, rgba(58,1,92,0.6), rgba(34,1,53,0.55));
+  --tab-border: rgba(201,167,245,0.2);
+  --tab-text: #DCD0EC;
+  --tab-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 14px rgba(5,0,10,0.4);
+  --tab-active-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.35),
+    inset 0 -2px 6px rgba(17,0,28,0.25),
+    0 8px 26px rgba(111,44,136,0.55),
+    0 0 40px rgba(28,79,140,0.35);
+
+  /* Legacy names still used by the admin panel */
+  --cmd-bg: var(--well-bg);
+  --cmd-label: var(--text-muted);
+  --step-bg: var(--well-bg);
+  --step-text: var(--text-sec);
+  --copy-bg: var(--ghost-bg);
+  --copy-hover: var(--ghost-hover);
+  --copy-border: var(--ghost-border);
+  --copy-text: var(--ghost-text);
+  --pass-bg: var(--ghost-bg);
+  --pass-border: var(--ghost-border);
+  --pass-text: var(--ghost-text);
+  --empty-bg: var(--well-bg);
+  --empty-border: var(--well-border);
+
+  --footer-border: rgba(201,167,245,0.12);
+  --footer-text: var(--text-muted);
+  --divider-opacity: 0.5;
+  --toggle-bg: var(--ghost-bg);
+  --toggle-border: var(--ghost-border);
+  --toggle-hover: var(--ghost-hover);
   --toggle-off: rgba(255,255,255,0.12);
 }
 
+/* Light mode — Lilac White page, white cards, HB Violet accents */
 html.light {
-  --bg-color: #eef1f8;
-  --page-text: #101828;
-  --text-sec: #46536b;
-  --text-muted: #7b879c;
+  --bg-color: var(--hb-lilac);
+  --page-text: #190028;
+  --text-sec: #4B3B60;
+  --text-muted: #7C6C92;
+  --accent: var(--hb-violet);
+  --hairline: rgba(111,44,136,0.16);
 
   --bg-layers:
-    radial-gradient(1100px 720px at 90% -10%, rgba(129, 140, 248, 0.30), transparent 62%),
-    radial-gradient(950px 680px at 2% 6%,     rgba(56, 189, 248, 0.22), transparent 60%),
-    radial-gradient(880px 620px at 52% 106%,  rgba(216, 180, 254, 0.30), transparent 62%),
-    linear-gradient(170deg, #f6f8fd 0%, #eef1f8 50%, #e7ecf6 100%);
+    radial-gradient(1000px 680px at 94% -14%, rgba(201,167,245,0.55), transparent 64%),
+    radial-gradient(760px 540px at 2% 100%, rgba(127,176,238,0.28), transparent 64%),
+    linear-gradient(180deg, #F8F5FC 0%, #F5F2FA 55%, #EFEAF7 100%);
 
-  --card-bg: linear-gradient(152deg, rgba(255,255,255,0.96) 0%, rgba(255,255,255,0.82) 100%);
-  --card-border: rgba(16,24,40,0.07);
+  --card-bg: linear-gradient(165deg, #FFFFFF 0%, rgba(255,255,255,0.94) 60%, rgba(250,247,253,0.92) 100%);
+  --card-border: rgba(111,44,136,0.13);
+  --card-border-hover: rgba(111,44,136,0.32);
   --card-shadow:
-    0 1px 2px rgba(16,24,40,0.05),
-    0 6px 20px rgba(16,24,40,0.07),
-    inset 0 1px 0 rgba(255,255,255,0.9);
+    inset 0 1px 0 #FFFFFF,
+    0 1px 2px rgba(58,1,92,0.06),
+    0 10px 28px rgba(58,1,92,0.09);
   --card-shadow-hover:
-    0 2px 4px rgba(16,24,40,0.06),
-    0 20px 46px rgba(16,24,40,0.16),
-    inset 0 1px 0 rgba(255,255,255,1);
-  --card-gloss: linear-gradient(180deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.25) 45%, transparent 100%);
-  --card-blur: blur(18px) saturate(130%);
+    inset 0 1px 0 #FFFFFF,
+    0 4px 10px rgba(58,1,92,0.08),
+    0 24px 54px rgba(58,1,92,0.18),
+    0 0 0 1px rgba(111,44,136,0.1);
+  --card-gloss: linear-gradient(175deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.4) 30%, transparent 55%);
+  --card-blur: blur(14px) saturate(120%);
 
-  --cmd-bg: rgba(16,24,40,0.045);
-  --cmd-border: rgba(16,185,129,0.3);
-  --cmd-label: #7b879c;
-  --step-bg: rgba(16,24,40,0.035);
-  --step-text: #46536b;
+  --well-bg: rgba(111,44,136,0.05);
+  --well-border: rgba(111,44,136,0.12);
 
-  --copy-bg: rgba(16,24,40,0.05);
-  --copy-hover: rgba(16,24,40,0.09);
-  --copy-border: rgba(16,24,40,0.1);
-  --copy-text: #46536b;
-  --pass-bg: rgba(16,24,40,0.04);
-  --pass-border: rgba(16,24,40,0.1);
-  --pass-text: #5c6880;
-  --empty-bg: rgba(16,24,40,0.035);
-  --empty-border: rgba(16,24,40,0.09);
+  --ring-border: rgba(111,44,136,0.28);
+  --ring-bg: rgba(111,44,136,0.06);
+  --ring-icon: var(--hb-violet);
+  --tag-cat-bg: rgba(111,44,136,0.09);
+  --tag-cat-border: rgba(111,44,136,0.24);
+  --tag-cat-text: var(--hb-violet);
+  --tag-type-bg: rgba(25,0,40,0.05);
+  --tag-type-text: #7C6C92;
 
-  --footer-border: rgba(16,24,40,0.08);
-  --footer-text: #9aa5b8;
-  --divider-opacity: 0.3;
-  --toggle-bg: rgba(16,24,40,0.05);
-  --toggle-border: rgba(16,24,40,0.1);
-  --toggle-hover: rgba(16,24,40,0.09);
-  --toggle-off: rgba(16,24,40,0.14);
+  --ghost-bg: rgba(111,44,136,0.04);
+  --ghost-hover: rgba(111,44,136,0.1);
+  --ghost-border: rgba(111,44,136,0.16);
+  --ghost-text: #4B3B60;
+
+  --tab-bg: linear-gradient(165deg, #FFFFFF, rgba(255,255,255,0.86));
+  --tab-border: rgba(111,44,136,0.14);
+  --tab-text: #3A2A50;
+  --tab-shadow: inset 0 1px 0 #FFFFFF, 0 4px 14px rgba(58,1,92,0.08);
+  --tab-active-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.35),
+    0 8px 22px rgba(111,44,136,0.35),
+    0 2px 6px rgba(28,79,140,0.2);
+
+  --footer-border: rgba(111,44,136,0.12);
+  --divider-opacity: 0.35;
+  --toggle-off: rgba(25,0,40,0.14);
 }
 
 /* ================================================================
@@ -118,7 +175,7 @@ html.light {
 html { scroll-behavior: smooth; }
 
 body {
-  font-family: 'Plus Jakarta Sans', 'Segoe UI', 'Noto Sans Hebrew', Helvetica, sans-serif;
+  font-family: 'Rubik', 'Segoe UI', Helvetica, sans-serif;
   background-color: var(--bg-color);
   color: var(--page-text);
   min-height: 100vh;
@@ -199,7 +256,7 @@ body > * { position: relative; z-index: 1; }
 .card-glass:hover {
   transform: translateY(-5px);
   box-shadow: var(--card-shadow-hover);
-  border-color: color-mix(in srgb, var(--card-border) 60%, white 40%);
+  border-color: var(--card-border-hover);
 }
 
 /* ================================================================
@@ -282,6 +339,7 @@ html.light .tab-glow-purple { box-shadow: 0 6px 20px rgba(168, 85, 247, 0.4); }
   background: var(--toggle-bg);
   cursor: pointer;
   font-size: 17px;
+  color: var(--accent);
   flex-shrink: 0;
   transition: background 0.2s ease, transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
   backdrop-filter: blur(8px);
@@ -313,8 +371,8 @@ html.light .tab-inactive-text .bg-white\/10 { background: rgba(16,24,40,0.07); }
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 .admin-input:focus {
-  border-color: rgba(99,102,241,0.55);
-  box-shadow: 0 0 0 3px rgba(99,102,241,0.14);
+  border-color: rgba(201,167,245,0.6);
+  box-shadow: 0 0 0 3px rgba(201,167,245,0.16);
 }
 html.light .admin-input {
   background: rgba(255,255,255,0.9);
@@ -344,7 +402,174 @@ html.light .admin-input {
   font-weight: 800;
   color: white;
   letter-spacing: -0.5px;
-  background: linear-gradient(135deg, #3b82f6 0%, #7c3aed 100%);
-  box-shadow: 0 4px 20px rgba(59, 130, 246, 0.5), inset 0 1px 0 rgba(255,255,255,0.3);
+  background: var(--grad-brand);
+  box-shadow: 0 4px 20px rgba(111, 44, 136, 0.5), inset 0 1px 0 rgba(255,255,255,0.3);
   flex-shrink: 0;
 }
+
+/* ================================================================
+   BRAND — logo, divider, footer
+   ================================================================ */
+.brand-logo { height: 46px; width: auto; flex-shrink: 0; }
+/* Below 200px wide the kit asks for the all-white logo on dark */
+.logo-small { display: none; }
+@media (max-width: 480px) {
+  .brand-logo { height: 36px; }
+  .logo-full { display: none; }
+  .logo-small { display: block; }
+  html.light .logo-small { display: none; }
+}
+.logo-light { display: none; }
+html.light .logo-light { display: block; }
+html.light .logo-dark { display: none; }
+
+.site-title { font-family: 'Montserrat', 'Rubik', sans-serif; color: var(--page-text); letter-spacing: -0.01em; }
+
+/* Dot + gradient stroke, from the "·H" of the logo */
+.brand-divider { display: flex; align-items: center; gap: 8px; opacity: var(--divider-opacity); }
+.brand-divider > span:first-child { width: 7px; height: 7px; border-radius: 99px; background: var(--hb-sky); flex-shrink: 0; }
+.brand-divider > span:last-child  { height: 3px; flex: 1; border-radius: 99px; background: var(--grad-brand); }
+
+.site-footer { border-top: 1px solid var(--footer-border); }
+.footer-symbol { height: 22px; width: auto; }
+.brand-bar { height: 6px; background: var(--grad-brand); }
+
+/* ================================================================
+   ICON RING — line icon inside a thin circle (brand kit §07)
+   ================================================================ */
+.icon-ring {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 30px; height: 30px; border-radius: 999px;
+  border: 1px solid var(--ring-border);
+  background: var(--ring-bg);
+  color: var(--ring-icon);
+  flex-shrink: 0;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+.icon-ring-lg {
+  width: 46px; height: 46px;
+  background:
+    radial-gradient(circle at 30% 25%, rgba(255,255,255,0.18), transparent 60%),
+    var(--ring-bg);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), 0 4px 14px rgba(5,0,10,0.25);
+}
+html.light .icon-ring-lg { box-shadow: inset 0 1px 0 #fff, 0 4px 12px rgba(58,1,92,0.08); }
+
+/* ================================================================
+   TABS — glass pills; the active one wears the brand gradient
+   ================================================================ */
+.tab-pill {
+  position: relative;
+  display: inline-flex; align-items: center; gap: 9px;
+  padding: 6px 8px 6px 14px;
+  border-radius: 999px;
+  font-size: 14px; font-weight: 600; white-space: nowrap;
+  color: var(--tab-text);
+  background: var(--tab-bg);
+  border: 1px solid var(--tab-border);
+  box-shadow: var(--tab-shadow);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  overflow: hidden;
+  transition: transform 0.18s ease, box-shadow 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+/* Gloss on the top half of every pill */
+.tab-pill::before {
+  content: ''; position: absolute; inset: 0 0 50% 0; pointer-events: none;
+  background: linear-gradient(180deg, rgba(255,255,255,0.14), rgba(255,255,255,0));
+  border-radius: 999px 999px 0 0;
+}
+.tab-pill:hover { transform: translateY(-1px); border-color: var(--card-border-hover); color: var(--page-text); }
+.tab-pill.is-active {
+  color: #fff;
+  background: var(--grad-brand);
+  border-color: rgba(201,167,245,0.55);
+  box-shadow: var(--tab-active-shadow);
+}
+.tab-pill.is-active::before { background: linear-gradient(180deg, rgba(255,255,255,0.3), rgba(255,255,255,0)); }
+.tab-pill.is-active .icon-ring { color: #fff; border-color: rgba(255,255,255,0.55); background: rgba(255,255,255,0.14); }
+.tab-count {
+  min-width: 24px; padding: 1px 8px; border-radius: 999px;
+  font-size: 12px; font-weight: 600; text-align: center;
+  font-family: 'Montserrat', sans-serif;
+  background: var(--ghost-bg); color: var(--text-muted);
+  border: 1px solid var(--ghost-border);
+}
+.tab-pill.is-active .tab-count { background: rgba(255,255,255,0.2); color: #fff; border-color: rgba(255,255,255,0.3); }
+
+/* ================================================================
+   CARD PARTS
+   ================================================================ */
+.card-topline {
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: var(--grad-brand); opacity: 0.85;
+}
+.card-gloss {
+  position: absolute; top: 0; left: 0; right: 0; height: 55%;
+  background: var(--card-gloss); pointer-events: none;
+  border-radius: 24px 24px 0 0;
+}
+/* Soft violet orb in the corner, brightens on hover */
+.card-glass::after {
+  content: ''; position: absolute; width: 220px; height: 220px; top: -120px; left: -90px;
+  background: radial-gradient(circle, rgba(111,44,136,0.35), transparent 65%);
+  pointer-events: none; opacity: 0.55; transition: opacity 0.3s ease;
+}
+.card-glass:hover::after { opacity: 1; }
+html.light .card-glass::after { background: radial-gradient(circle, rgba(201,167,245,0.4), transparent 65%); }
+.card-glass > * { position: relative; }
+.card-glass > .card-topline, .card-glass > .card-gloss { position: absolute; }
+
+.name-en { font-family: 'Montserrat', sans-serif; font-weight: 500; color: var(--text-muted); letter-spacing: 0.01em; }
+
+.tag-category, .tag-type { display: inline-flex; align-items: center; gap: 5px; border-radius: 999px; white-space: nowrap; }
+.tag-category {
+  font-size: 12px; font-weight: 600; padding: 3px 10px;
+  background: var(--tag-cat-bg); color: var(--tag-cat-text); border: 1px solid var(--tag-cat-border);
+}
+.tag-type {
+  font-size: 10.5px; font-weight: 500; padding: 2px 8px;
+  background: var(--tag-type-bg); color: var(--tag-type-text);
+}
+
+.card-well { background: var(--well-bg); border: 1px solid var(--well-border); }
+.cmd-text { font-family: 'DM Mono', 'Courier New', monospace; color: var(--accent); }
+.step-num {
+  width: 18px; height: 18px; border-radius: 99px; margin-top: 1px;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 700; color: #fff; background: var(--grad-brand);
+}
+.install-details[open] .chev { transform: rotate(180deg); }
+.install-details .chev { transition: transform 0.18s ease; }
+.install-details > summary::after { content: none; }
+
+/* Buttons */
+.btn-brand {
+  position: relative; overflow: hidden;
+  color: #fff; background: var(--grad-brand);
+  border: 1px solid rgba(201,167,245,0.35);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.3), 0 6px 18px rgba(111,44,136,0.4);
+  transition: filter 0.18s ease, transform 0.14s ease, box-shadow 0.18s ease;
+}
+.btn-brand::before {
+  content: ''; position: absolute; inset: 0 0 50% 0; pointer-events: none;
+  background: linear-gradient(180deg, rgba(255,255,255,0.22), rgba(255,255,255,0));
+}
+.btn-brand:hover { filter: brightness(1.12); transform: translateY(-1px); box-shadow: inset 0 1px 0 rgba(255,255,255,0.35), 0 10px 26px rgba(111,44,136,0.55); }
+.btn-brand:active { transform: translateY(0); filter: brightness(0.96); }
+
+.btn-ghost {
+  color: var(--ghost-text); background: var(--ghost-bg); border: 1px solid var(--ghost-border);
+  transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+}
+.btn-ghost:hover { background: var(--ghost-hover); color: var(--page-text); border-color: var(--card-border-hover); }
+.btn-ghost.is-done { color: var(--accent); border-color: var(--card-border-hover); }
+
+.btn-outline-brand {
+  color: var(--accent); background: transparent;
+  border: 1.5px solid var(--card-border-hover);
+  transition: background 0.18s ease, transform 0.14s ease;
+}
+.btn-outline-brand:hover { background: var(--ghost-hover); transform: translateY(-1px); }
+
+:focus-visible { outline: 2px solid var(--hb-sky); outline-offset: 2px; }

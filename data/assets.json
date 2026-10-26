@@ -1,349 +1,671 @@
 [
   {
-    "name": "Safe Play Hub",
+    "name": "מרכז משחקי הבטיחות",
     "type": "tool",
-    "description": "פלטפורמה לכל משחקי ההדרכה והמצגות — חידונים, תרחישים, מצגות בטיחות. רץ מהר, עובד בנייד.",
+    "description": "משחקי הדרכה ומצגות בטיחות עדכניים, כל משחק לנושא אחר. משחקים אישיים וקבוצתיים — להפעלה מול קבוצה או לתרגול עצמי.",
     "access": "https://hb-safeplayhub.netlify.app/",
     "access_note": "סיסמה: HB@Safety2026",
-    "audience": ["instructors"],
+    "audience": [
+      "games"
+    ],
     "has_guide": true,
     "guide_url": "https://youtu.be/ZIb95ZtViNE",
     "install_url": null,
     "template_url": "https://github.com/hbconsulting00-sketch/safeplay-hub",
-    "added_by": "admin"
+    "added_by": "admin",
+    "name_en": "Safe Play Hub"
   },
   {
-    "name": "Safety IL",
+    "name": "עוזר חקיקת בטיחות",
     "type": "tool",
-    "description": "עוזר AI לבטיחות תעסוקתית, סגור לחקיקה הישראלית. שואלים בשפה חופשית — עונה מהנהלים.",
+    "description": "עונה על שאלות בטיחות בשפה חופשית, מבוסס על החקיקה הישראלית בלבד. כשצריך תשובה עם מקור.",
     "access": "https://hb-safety-legislation.vercel.app/",
     "access_note": null,
-    "audience": ["instructors"],
+    "audience": [
+      "documents"
+    ],
     "has_guide": true,
     "guide_url": "https://hb-tools-briefing.vercel.app/",
     "install_url": null,
     "template_url": "https://github.com/hbconsulting00-sketch/safety-assistant-legislation",
-    "added_by": "admin"
+    "added_by": "admin",
+    "name_en": "Safety IL"
   },
   {
-    "name": "HB Safety Tools",
+    "name": "בודק נהלי בטיחות",
     "type": "tool",
-    "description": "בדיקת נהלי בטיחות מול החוק הישראלי — דוח פערים, טיוטת נוהל מתוקן, מילון מונחים.",
+    "description": "בודק נוהל בטיחות מול החוק ומחזיר דוח פערים וטיוטה מתוקנת. לפני עדכון או אישור נוהל.",
     "access": "https://hb-safety-tools.vercel.app/",
     "access_note": null,
-    "audience": ["instructors", "daily-shared"],
+    "audience": [
+      "documents"
+    ],
     "has_guide": true,
     "guide_url": "https://hb-tools-briefing.vercel.app/",
     "install_url": null,
     "template_url": "https://github.com/hbconsulting00-sketch/hb-safety-tools",
-    "added_by": "admin"
+    "added_by": "admin",
+    "name_en": "HB Safety Tools"
   },
   {
-    "name": "AI-Operation",
+    "name": "ניהול ועדות בטיחות",
     "type": "tool",
-    "description": "ניהול פרוטוקולים ומשימות של ועדות בטיחות — סיכום, החלטות, טבלת משימות, ניתוח מגמות.",
+    "description": "מנהל פרוטוקולים, החלטות ומשימות של ועדות בטיחות, כולל ניתוח מגמות. לאורך כל שנת הוועדה.",
     "access": "https://safety-ops-phi.vercel.app/",
     "access_note": null,
-    "audience": ["instructors", "management"],
+    "audience": [
+      "operations"
+    ],
     "has_guide": true,
     "guide_url": "https://hb-tools-briefing.vercel.app/",
     "install_url": null,
     "template_url": "https://github.com/hbconsulting00-sketch/hb-ai-operations",
-    "added_by": "admin"
+    "added_by": "admin",
+    "name_en": "AI-Operation"
   },
   {
-    "name": "Meeting Ops Teams",
+    "name": "משימות מפגישות לצוות",
     "type": "tool",
-    "description": "סיכום פגישות (מתוך טקסט / הקלטה) + הוצאת משימות לדשבורד אישי.",
+    "description": "מסכם פגישה ומעביר את המשימות לדשבורד אישי למעקב. כשמשימות מפגישות צריכות להיסגר.",
     "access": "https://meeting-ops-teams.vercel.app/",
     "access_note": null,
-    "audience": ["daily-shared"],
+    "audience": [
+      "operations"
+    ],
     "has_guide": true,
     "guide_url": "https://youtu.be/8EWKeZagsDQ",
     "install_url": null,
-    "added_by": "admin"
+    "added_by": "admin",
+    "name_en": "Meeting Ops Teams"
   },
   {
     "name": "מסכם פגישות",
     "type": "agent",
-    "description": "מסכם פגישות — מפיק סיכום, החלטות ומשימות מתוך פרוטוקול או תמלול.",
+    "description": "הופך פרוטוקול או תמלול לסיכום עם החלטות ומשימות. גרסת Gemini, מיד אחרי פגישה.",
     "access": "https://gemini.google.com/gem/1nBHIlGyX58gRa1_XXMsgMQzJsNX0cU3U?usp=sharing",
     "access_note": null,
-    "audience": ["daily-shared"],
+    "audience": [
+      "documents"
+    ],
     "has_guide": false,
     "guide_url": null,
     "install_url": null,
-    "added_by": "admin"
+    "added_by": "admin",
+    "name_en": "Meeting Summarizer"
   },
   {
     "name": "עורך לשוני",
     "type": "agent",
-    "description": "עריכה לשונית — ניסוח, תקינות ובהירות בעברית.",
+    "description": "משפר ניסוח, תקינות ובהירות בעברית. לפני ששולחים מסמך החוצה.",
     "access": "https://gemini.google.com/gem/1eJO16mkTkTgd__Rp2NHIL517JINE8PQ2?usp=sharing",
     "access_note": null,
-    "audience": ["daily-shared"],
+    "audience": [
+      "documents"
+    ],
     "has_guide": false,
     "guide_url": null,
     "install_url": null,
     "template_url": "https://github.com/hbconsulting00-sketch/hebrew-language-editor",
-    "added_by": "admin"
+    "added_by": "admin",
+    "name_en": "Hebrew Language Editor"
   },
   {
-    "name": "HB Pre-Sale Assistant",
+    "name": "עוזר טרום-מכירה",
     "type": "agent",
-    "description": "עוזר טרום-מכירה והצעות מחיר — בונה ומנסח הצעות ללקוחות.",
+    "description": "מלווה את כל התקשורת עם הלקוח מרגע קבלת הליד — מענה, פגישה, הצעת מחיר ומעקב. מהפנייה הראשונה ועד סגירה.",
     "access": "https://gemini.google.com/gem/1vWQ4lTdu91SFGkrGf4trNwk2sqaVz5OU?usp=sharing",
     "access_note": null,
-    "audience": ["daily-shared"],
+    "audience": [
+      "marketing"
+    ],
     "has_guide": true,
     "guide_url": "https://youtu.be/wwTH1ty5jzY",
     "install_url": null,
-    "added_by": "admin"
+    "added_by": "admin",
+    "name_en": "HB Pre-Sale Assistant"
   },
   {
-    "name": "MeetingOps",
+    "name": "סיכום ומשימות מפגישה",
     "type": "agent",
-    "description": "ניהול תפעול פגישות — סיכום, משימות ומעקב.",
+    "description": "מסכם פגישה ומוציא ממנה משימות למעקב. גרסת ChatGPT, למי שעובד שם.",
     "access": "https://chatgpt.com/g/g-69dd4113733c8191879d5138111cf6ce-meetingops",
     "access_note": null,
-    "audience": ["daily-shared"],
+    "audience": [
+      "documents"
+    ],
     "has_guide": false,
     "guide_url": null,
     "install_url": null,
-    "added_by": "admin"
+    "added_by": "admin",
+    "name_en": "MeetingOps"
   },
   {
-    "name": "HB Mini LMS",
+    "name": "מערכת למידה ללקוחות",
     "type": "tool",
-    "description": "מערכת לניהול למידה — לומדות ומסמכים לחתימה, הפצה, מעקב ובקרה.",
+    "description": "מערכת LMS שבנינו ללקוחות: מעלים לומדות ושיעורים, מנהלים לומדים ועוקבים אחרי השלמה. כשלקוח רוצה ללמד ולנהל אצלו.",
     "access": "https://hb-mini-lms.vercel.app/login",
     "access_note": null,
-    "audience": ["studio-only"],
+    "audience": [
+      "operations"
+    ],
     "has_guide": true,
     "guide_url": "https://youtu.be/E_KMQrCAVz4",
     "install_url": null,
     "template_url": "https://github.com/hbconsulting00-sketch/hb-mini-lms",
-    "added_by": "admin"
+    "added_by": "admin",
+    "name_en": "HB Mini LMS"
   },
   {
-    "name": "HBC Onepager",
+    "name": "דף הצגה לארגון",
     "type": "tool",
-    "description": "תבנית לעמוד הצגה קומפקטי של הארגון — פרופיל, שירותים ויצירת קשר. שכפלי, שנני ופרסמי.",
+    "description": "תבנית לעמוד הצגה קצר של הארגון — פרופיל, שירותים, קשר. כשלקוח מבקש \"משהו לשלוח\".",
     "access": "",
     "access_note": null,
-    "audience": ["studio-only", "management"],
+    "audience": [
+      "marketing"
+    ],
     "has_guide": false,
     "guide_url": null,
     "install_url": null,
     "template_url": "https://github.com/hbconsulting00-sketch/hbc-onepager",
-    "added_by": "admin"
+    "added_by": "admin",
+    "name_en": "HBC Onepager"
   },
   {
     "name": "מגנט לידים",
     "type": "tool",
-    "description": "תבנית לכלי שיווקי — שכפלי, שני את הנושא ופרסמי. בעתיד יהפוך לסקיל מלא.",
+    "description": "תבנית לכלי שיווקי שמושך לידים. כשרוצים להעלות קמפיין עם ערך ללקוח.",
     "access": "",
     "access_note": null,
-    "audience": ["studio-only"],
+    "audience": [
+      "marketing"
+    ],
     "has_guide": false,
     "guide_url": null,
     "install_url": null,
     "template_url": "https://github.com/hbconsulting00-sketch/hb-lead-magnet",
-    "added_by": "admin"
+    "added_by": "admin",
+    "name_en": "Lead Magnet"
   },
   {
-    "name": "HB Chatbot",
+    "name": "צ'אטבוט ייעודי",
     "type": "tool",
     "description": "תבנית לצ'אטבוט ייעודי — שכפלי, חברי ל-knowledge base משלך ופרסמי. מתאים ללומדה, ללקוח או לאתר.",
     "access": "",
     "access_note": null,
-    "audience": ["studio-only"],
+    "audience": [
+      "studio"
+    ],
     "has_guide": false,
     "guide_url": null,
     "install_url": null,
     "template_url": "https://github.com/hbconsulting00-sketch/hb-chatbot-backend",
-    "added_by": "admin"
+    "added_by": "admin",
+    "name_en": "HB Chatbot"
   },
   {
-    "name": "elearning-builder",
+    "name": "בונה לומדות",
     "type": "skill",
-    "description": "בניית לומדות SCORM מקצה לקצה — workflow מודרך, שבעה סוגי אינטראקציה, נגישות.",
-    "access": "/elearning",
-    "access_note": null,
-    "audience": ["studio-only"],
-    "has_guide": false,
-    "guide_url": null,
-    "install_url": "https://github.com/hbconsulting00-sketch/hb-elearning-skill",
-    "added_by": "admin"
-  },
-  {
-    "name": "elearning-builder-4",
-    "type": "skill",
-    "description": "גרסה 4 של בנאי הלומדות — עם מסגרת מורחבת, קבצי reference נפרדים ותהליך מפורט יותר.",
+    "description": "בונה לומדת SCORM מקצה לקצה בתהליך מודרך, כולל אינטראקציות ונגישות. כשצריך לומדה מוכנה ל-LMS.",
     "access": "/elearning-builder-4",
     "access_note": null,
-    "audience": ["studio-only"],
+    "audience": [
+      "presentations"
+    ],
     "has_guide": false,
     "guide_url": null,
     "install_url": "https://github.com/hbconsulting00-sketch/elearning-builder-4",
-    "added_by": "admin"
+    "added_by": "admin",
+    "name_en": "eLearning Builder 4"
   },
   {
-    "name": "find-skills",
+    "name": "מאתר סקילים",
     "type": "skill",
-    "description": "מוצאת ומציגה את כל הסקילים המותקנים ב-Claude Code — כולל תיאור ופקודה.",
+    "description": "מציג את כל הסקילים המותקנים ב-Claude Code עם תיאור ופקודה. כששוכחים איך קוראים לסקיל.",
     "access": "/find-skills",
     "access_note": null,
-    "audience": ["studio-only"],
+    "audience": [
+      "studio"
+    ],
     "has_guide": false,
     "guide_url": null,
     "install_url": "https://github.com/hbconsulting00-sketch/hb-tools-hub/tree/main/skills/find-skills",
-    "added_by": "admin"
+    "added_by": "admin",
+    "name_en": "find-skills"
   },
   {
-    "name": "frontend-design",
+    "name": "עיצוב ממשקים",
     "type": "skill",
-    "description": "מדריך עיצוב ממשקים — עקרונות, קומפוננטות ו-CSS patterns לבניית UI מקצועי.",
+    "description": "עקרונות ודפוסי עיצוב לבניית ממשק מקצועי. כשבונים מסך חדש.",
     "access": "/frontend-design",
     "access_note": null,
-    "audience": ["studio-only"],
+    "audience": [
+      "studio"
+    ],
     "has_guide": false,
     "guide_url": null,
     "install_url": "https://github.com/hbconsulting00-sketch/hb-tools-hub/tree/main/skills/frontend-design",
-    "added_by": "admin"
+    "added_by": "admin",
+    "name_en": "frontend-design"
   },
   {
-    "name": "ux-design-mentor",
+    "name": "מנטור UX",
     "type": "skill",
-    "description": "מנטור UX — עוזר לחשוב על חוויית משתמש, flows, wireframes ופרינציפלים של עיצוב.",
+    "description": "עוזר לחשוב על חוויית משתמש, תהליכים ו-wireframes. בשלב התכנון של כלי.",
     "access": "/ux-design-mentor",
     "access_note": null,
-    "audience": ["studio-only"],
+    "audience": [
+      "studio"
+    ],
     "has_guide": false,
     "guide_url": null,
     "install_url": "https://github.com/hbconsulting00-sketch/hb-tools-hub/tree/main/skills/ux-design-mentor",
-    "added_by": "admin"
+    "added_by": "admin",
+    "name_en": "ux-design-mentor"
   },
   {
-    "name": "Multiplayer Games",
+    "name": "בונה משחקים קבוצתיים",
     "type": "skill",
-    "description": "בונה משחק מולטיפלייר בסגנון קהוט על בסיס כל מצגת או נושא.",
+    "description": "בונה משחק מולטיפלייר בסגנון קהוט מכל מצגת או נושא. כשרוצים להפוך הדרכה קיימת למשחק.",
     "access": "/multiplayer-games",
     "access_note": "בפיתוח — הסקיל יהיה זמין בקרוב",
-    "audience": ["studio-only"],
+    "audience": [
+      "studio"
+    ],
     "has_guide": false,
     "guide_url": null,
     "install_url": "https://github.com/hbconsulting00-sketch/hb-multiplayer-games",
-    "added_by": "admin"
+    "added_by": "admin",
+    "name_en": "Multiplayer Games"
   },
   {
     "name": "מומחה QA",
     "type": "agent",
-    "description": "סוכן לבדיקות איכות — עובר על תוצרים ומאתר בעיות ופערים.",
+    "description": "עובר על תוצר ומאתר בעיות ופערים. לפני שמשהו יוצא ללקוח.",
     "access": "https://gemini.google.com/gem/16L3MRT8DDJRY5Dab9TJvz9nBnKzlnxuN?usp=sharing",
     "access_note": null,
-    "audience": ["studio-only"],
+    "audience": [
+      "studio"
+    ],
     "has_guide": false,
     "guide_url": null,
     "install_url": null,
-    "added_by": "admin"
+    "added_by": "admin",
+    "name_en": "QA Expert"
   },
   {
-    "name": "Safety Game Architect",
+    "name": "מתכנן משחקי בטיחות",
     "type": "agent",
-    "description": "סוכן לבניית משחקי הדרכת בטיחות — מבנה, שאלות, מנגנוני משחק.",
+    "description": "מתכנן משחק הדרכת בטיחות — מבנה, שאלות ומנגנון. בשלב הרעיון, לפני שבונים.",
     "access": "https://gemini.google.com/gem/1XNSle4ZvgDqA79Cunb63OplNNG7quh6Y?usp=sharing",
     "access_note": null,
-    "audience": ["studio-only"],
+    "audience": [
+      "studio"
+    ],
     "has_guide": false,
     "guide_url": null,
     "install_url": null,
-    "added_by": "admin"
+    "added_by": "admin",
+    "name_en": "Safety Game Architect"
   },
   {
     "name": "המפיק — סרטוני AI",
     "type": "agent",
-    "description": "עוזר הפקה לסרטוני AI — תסריט, רצף, הנחיות ויזואליות.",
+    "description": "בונה תסריט, רצף סצנות והנחיות ויזואליות לסרטון AI. כשמתכננים סרטון הדרכה או שיווק.",
     "access": "https://gemini.google.com/gem/16-jyVbPpcyFMtXLWJ0qseq8zFp7eMaxk?usp=sharing",
     "access_note": null,
-    "audience": ["studio-only"],
+    "audience": [
+      "presentations"
+    ],
     "has_guide": false,
     "guide_url": null,
     "install_url": null,
-    "added_by": "admin"
+    "added_by": "admin",
+    "name_en": "AI Video Producer"
   },
   {
     "name": "סוכן אפיון צרכים",
     "type": "agent",
-    "description": "עוזר לאפיין צורך ולהגדיר דרישות לכלי חדש לפני בנייה.",
+    "description": "עוזר להגדיר צורך ודרישות לכלי חדש. לפני שמתחילים לבנות.",
     "access": "https://gemini.google.com/gem/1oHNSPoEGs14wVlijn6AsA8vdBm-ru8dP?usp=sharing",
     "access_note": null,
-    "audience": ["studio-only"],
+    "audience": [
+      "studio"
+    ],
     "has_guide": false,
     "guide_url": null,
     "install_url": null,
-    "added_by": "admin"
+    "added_by": "admin",
+    "name_en": "Requirements Agent"
   },
   {
     "name": "מפיק לומדות",
     "type": "agent",
-    "description": "מפיק לומדות — עוזר בהפקת תוכן לומדה מקצה לקצה.",
+    "description": "מלווה את הפקת התוכן של לומדה מהרעיון ועד התסריט. לפני שנכנסים לבנייה.",
     "access": "https://gemini.google.com/gem/1ir-mYxAAglEpXeHaxzWDeWskA-xAuYoY?usp=sharing",
     "access_note": null,
-    "audience": ["studio-only"],
+    "audience": [
+      "presentations"
+    ],
     "has_guide": false,
     "guide_url": null,
     "install_url": null,
-    "added_by": "admin"
+    "added_by": "admin",
+    "name_en": "eLearning Producer"
   },
   {
-    "name": "HB Content Strategist",
+    "name": "אסטרטג תוכן",
     "type": "agent",
-    "description": "אסטרטגיית תוכן — תכנון וכיווני תוכן שיווקי ל-HB.",
+    "description": "מתכנן כיווני תוכן שיווקי ל-HB. כשבונים לוח תוכן או קמפיין.",
     "access": "https://chatgpt.com/g/g-69dde7b79e988191a38e648b83984158-hb-content-strategist",
     "access_note": null,
-    "audience": ["management"],
+    "audience": [
+      "marketing"
+    ],
     "has_guide": false,
     "guide_url": null,
     "install_url": null,
-    "added_by": "admin"
+    "added_by": "admin",
+    "name_en": "HB Content Strategist"
   },
   {
     "name": "טלפרומפטר",
     "type": "tool",
-    "description": "טלפרומפטר מקצועי עם הקלטה — ניהול טקסט, שליטה על מהירות, הקלטת וידאו ישירות מהדפדפן.",
+    "description": "טלפרומפטר עם הקלטת וידאו ישירות מהדפדפן. כשמצלמים סרטון עם טקסט כתוב.",
     "access": "https://telejoe.netlify.app/",
     "access_note": null,
-    "audience": ["daily-shared", "studio-only"],
+    "audience": [
+      "presentations"
+    ],
     "has_guide": false,
     "guide_url": null,
     "install_url": null,
-    "added_by": "admin"
+    "added_by": "admin",
+    "name_en": "Teleprompter"
   },
   {
     "name": "מתרגם מסמכים",
     "type": "tool",
-    "description": "מתרגם קבצי PDF ומסמכים בשלמותם — שומר על עיצוב המקור ומייצר קובץ מתורגם להורדה.",
+    "description": "מתרגם PDF ומסמכים שלמים ושומר על העיצוב המקורי. כשמגיע חומר בשפה אחרת.",
     "access": "https://mytranslatorpdf.netlify.app/",
     "access_note": null,
-    "audience": ["daily-shared", "studio-only"],
+    "audience": [
+      "documents"
+    ],
     "has_guide": false,
     "guide_url": null,
     "install_url": null,
-    "added_by": "admin"
+    "added_by": "admin",
+    "name_en": "Document Translator"
   },
   {
-    "name": "Hebrew RTL Fixer",
+    "name": "מתקן כיווניות עברית",
     "type": "extension",
-    "description": "תוסף כרום שמתקן כיווניות טקסט עברי בכל אתר — כולל Claude. לחיצה אחת על Fix RTL מיישרת את כל הטקסט בדף.",
+    "description": "תוסף כרום שמיישר טקסט עברי לימין בכל אתר, כולל Claude. כשהעברית יוצאת הפוכה.",
     "access": "",
     "access_note": null,
-    "audience": ["daily-shared", "studio-only"],
+    "audience": [
+      "studio"
+    ],
     "has_guide": false,
     "guide_url": null,
     "install_url": "https://github.com/hbconsulting00-sketch/rtl-fixer-extension",
     "template_url": "https://github.com/hbconsulting00-sketch/rtl-fixer-extension/raw/main/rtl-fixer-extension.zip",
-    "install_notes": "עשי אנזיפ לקובץ לתיקייה נגישה במחשב\nכנסי לכרום → chrome://extensions\nהפעילי \"Developer mode\" (מצב מפתח)\nלחצי \"Load unpacked\" ← בחרי את התיקייה",
-    "added_by": "admin"
+    "added_by": "admin",
+    "name_en": "Hebrew RTL Fixer"
+  },
+  {
+    "name": "נווט תקנות הבנייה 2026",
+    "type": "tool",
+    "description": "מסביר מה תקנות הבנייה 2026 דורשות מכל בעל תפקיד. בליווי פרויקט בנייה או בהדרכה עליהן.",
+    "access": "https://safety-navigator-2026.vercel.app/?demo=1",
+    "access_note": null,
+    "audience": [
+      "operations"
+    ],
+    "has_guide": false,
+    "guide_url": null,
+    "install_url": null,
+    "template_url": null,
+    "added_by": "admin",
+    "name_en": "Safety Navigator 2026 · Demo"
+  },
+  {
+    "name": "מערכת גיוס HR",
+    "type": "tool",
+    "description": "מנהלת את תהליך גיוס המועמדים של HB. מפרסום משרה ועד קליטה.",
+    "access": "https://hrforhb.netlify.app/",
+    "access_note": null,
+    "audience": [
+      "operations"
+    ],
+    "has_guide": false,
+    "guide_url": null,
+    "install_url": null,
+    "template_url": null,
+    "added_by": "admin",
+    "name_en": "HR Recruitment System"
+  },
+  {
+    "name": "מפיק טבלאות תפעול",
+    "type": "tool",
+    "description": "בונה לו״ז חודשי לצוות — הדרכות, ימי ממונה וגאנט, כולל ייבוא מ-Outlook. בתכנון החודש.",
+    "access": "https://operations-schedule.vercel.app/",
+    "access_note": null,
+    "audience": [
+      "operations"
+    ],
+    "has_guide": false,
+    "guide_url": null,
+    "install_url": null,
+    "template_url": null,
+    "added_by": "admin",
+    "name_en": "Operations Scheduler"
+  },
+  {
+    "name": "ריוויו ללומדות",
+    "type": "tool",
+    "description": "מערכת ריוויו ללומדות שנבנו בקוד: הערות על כל רכיב, עמוד או בכללי, וייצוא להמשך עבודה. לעבודה פנימית ומול לקוחות.",
+    "access": "https://drive.google.com/file/d/1kXpyOKOdsACJWXFRdXWiVBaDwNLogVIQ/view?usp=sharing",
+    "access_note": null,
+    "audience": [
+      "studio"
+    ],
+    "has_guide": false,
+    "guide_url": null,
+    "install_url": null,
+    "template_url": null,
+    "added_by": "admin",
+    "name_en": "Review for e-learning"
+  },
+  {
+    "name": "סימולציית AI למודרכים",
+    "type": "tool",
+    "description": "",
+    "access": "https://share.gemini.google/AIoqGteGL4hK",
+    "access_note": null,
+    "audience": [
+      "games"
+    ],
+    "has_guide": false,
+    "guide_url": null,
+    "install_url": null,
+    "template_url": null,
+    "added_by": "admin",
+    "name_en": "AI Trainee Simulation"
+  },
+  {
+    "name": "דף הכלים לצוות",
+    "type": "tool",
+    "description": "דף קישורים והנחיות לכלי HB, למדריכים ולהנהלה, עם איסוף משוב. כשמציגים לצוות כלים חדשים.",
+    "access": "https://hb-tools-briefing-lovat.vercel.app",
+    "access_note": null,
+    "audience": [
+      "studio"
+    ],
+    "has_guide": false,
+    "guide_url": null,
+    "install_url": null,
+    "template_url": null,
+    "added_by": "admin",
+    "name_en": "hb-tools-briefing",
+    "install_notes": "קישור למשובים: https://hb-tools-dashboard.vercel.app/"
+  },
+  {
+    "name": "איסוף המלצות לקוחות",
+    "type": "tool",
+    "description": "טופס ששולחים ללקוח מרוצה כדי לאסוף המלצה. אחרי פרויקט שהצליח.",
+    "access": "https://hbtestamonial.netlify.app/",
+    "access_note": null,
+    "audience": [
+      "marketing",
+      "news"
+    ],
+    "has_guide": false,
+    "guide_url": null,
+    "install_url": null,
+    "template_url": null,
+    "added_by": "admin",
+    "name_en": "Testimonial Collector"
+  },
+  {
+    "name": "אליאס בטיחות",
+    "type": "tool",
+    "description": "משחק אליאס בטיחות בקבוצות עם מסך מנחה דיגיטלי. לפתיחה או לסיום הדרכה, כשרוצים להרים אנרגיה.",
+    "access": "https://safety-alias.vercel.app/",
+    "access_note": "HB-7Q8S-J68P",
+    "audience": [
+      "games",
+      "news"
+    ],
+    "has_guide": true,
+    "guide_url": "https://docs.google.com/document/d/1aPrC3oiD9kg27-7IgXel5dn57ElZ1IWUaDychUQxvg0/edit?usp=sharing",
+    "install_url": "https://drive.google.com/drive/folders/1l3-7Q8Wc7h6iK5xBkaTXwd2gib_3HWho?usp=sharing",
+    "template_url": null,
+    "added_by": "admin",
+    "name_en": "Safety Alias"
+  },
+  {
+    "name": "אתר הסטודיו",
+    "type": "tool",
+    "description": "האתר שמציג ללקוחות את יכולות הסטודיו. לשליחה ללקוח פוטנציאלי.",
+    "access": "https://hbconsulting-studio.netlify.app/",
+    "access_note": null,
+    "audience": [
+      "marketing",
+      "news"
+    ],
+    "has_guide": false,
+    "guide_url": null,
+    "install_url": null,
+    "template_url": null,
+    "added_by": "admin",
+    "name_en": "HB Studio Website"
+  },
+  {
+    "name": "גלגל הבטיחות",
+    "type": "tool",
+    "description": "גלגל שאלות בטיחות שמסובבים מול הקבוצה. עובד על המסך או כמשחק פיזי בכיתה.",
+    "access": "https://claude.ai/artifact/7C4fqQTGP3YegTTmfRkCgo",
+    "access_note": null,
+    "audience": [
+      "games",
+      "news"
+    ],
+    "has_guide": true,
+    "guide_url": "https://claude.ai/artifact/MbNY44jJAAczzduapmGZ5y",
+    "install_url": null,
+    "template_url": "https://drive.google.com/drive/folders/1Pf8-vX8UoeTObEU1P1ccLBmVCYe9RiSI?usp=drive_link",
+    "added_by": "admin",
+    "name_en": "Safety Wheel"
+  },
+  {
+    "name": "טופס הצהרת בעל מקצוע מתאים",
+    "type": "form",
+    "description": "טופס הצהרה דיגיטלי עם חתימה, עותק נשמר אוטומטית במשרד. לפני תחילת עבודה אצל לקוח.",
+    "access": "https://hb-hatzharat-madrich.netlify.app/",
+    "access_note": null,
+    "audience": [
+      "documents",
+      "news"
+    ],
+    "has_guide": false,
+    "guide_url": null,
+    "install_url": null,
+    "template_url": null,
+    "added_by": "admin",
+    "name_en": "Qualified Professional Declaration",
+    "install_notes": "למלא את הטופס\nלחתום בתחתית העמוד\nללחוץ על \"שמירה ושליחה\" — הקובץ נשמר אצלכם, ועותק נכנס לתיקיית הריכוז במשרד"
+  },
+  {
+    "name": "מתרגם מצגות",
+    "type": "tool",
+    "description": "מתרגם מצגת PowerPoint ושומר על העיצוב המקורי. כשצריך את אותה הדרכה בשפה אחרת.",
+    "access": "https://drive.google.com/file/d/1Yz83YDe2TLFzi9iNpzTEv9wfbxNpmylX/view?usp=drive_link",
+    "access_note": null,
+    "audience": [
+      "presentations"
+    ],
+    "has_guide": false,
+    "guide_url": null,
+    "install_url": null,
+    "template_url": null,
+    "install_notes": null,
+    "added_by": "admin",
+    "name_en": "Presentation Translator"
+  },
+  {
+    "name": "סקיל מצגות HB",
+    "type": "agent",
+    "description": "",
+    "access": "https://drive.google.com/file/d/1ZatTlNCkut0PFCZ_w-yBN1kfteAubFkG/view?usp=drive_link",
+    "access_note": null,
+    "audience": [
+      "presentations",
+      "news"
+    ],
+    "has_guide": false,
+    "guide_url": null,
+    "install_url": null,
+    "template_url": null,
+    "install_notes": "הורידי את תיקיית הסקיל מ-GitHub\nהעתיקי אותה לתוך ~\\.claude\\skills\\\nסגרי ופתחי מחדש Claude Code",
+    "added_by": "admin",
+    "name_en": "HB Presentations Skill"
+  },
+  {
+    "name": "מצגות הצעת מחיר — לפי לקוח",
+    "type": "tool",
+    "description": "",
+    "access": "https://drive.google.com/file/d/1RYpfkiAgxCCNMACjxLAjeeGr6izgGOXu/view?usp=drive_link",
+    "access_note": null,
+    "audience": [
+      "marketing",
+      "news"
+    ],
+    "has_guide": false,
+    "guide_url": null,
+    "install_url": null,
+    "template_url": null,
+    "install_notes": null,
+    "added_by": "admin",
+    "name_en": "Client Proposal Decks"
+  },
+  {
+    "name": "משחק סימולציה לתרגול SDS",
+    "type": "tool",
+    "description": "סימולציה קבוצתית לתרגול קריאת SDS: המנחה פותח חדר, המשתתפים נכנסים בקוד או QR. בהדרכת חומרים מסוכנים.",
+    "access": "https://sds-game.vercel.app/",
+    "access_note": null,
+    "audience": [
+      "games",
+      "news"
+    ],
+    "has_guide": true,
+    "guide_url": "https://claude.ai/artifact/TwTG3yaRbycoYnNBJa1FxR",
+    "install_url": null,
+    "template_url": null,
+    "install_notes": null,
+    "added_by": "admin",
+    "name_en": "SDS Simulation Game"
   }
 ]

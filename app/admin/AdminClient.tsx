@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Asset } from "@/components/AssetCard";
 import { TabConfig, ColorPreset, COLOR_PRESETS, PRESET_LABELS, PRESET_HEX, ALL_PRESETS } from "@/lib/tabPresets";
 import { AssetTypeConfig, TypeBehavior, BEHAVIORS, BEHAVIOR_LABELS, INSTALL_PRESETS, findType } from "@/lib/assetTypes";
+import { BrandIcon, ICONS, ICON_KEYS } from "@/lib/icons";
 
 // ── Types ─────────────────────────────────────────────────────────────
 interface SiteSettings {
@@ -11,12 +12,23 @@ interface SiteSettings {
   siteSubtitle: string;
 }
 
-const AUDIENCES_BASE = [
-  { key: "instructors",  label: "כלי מדריכים", emoji: "🎓" },
-  { key: "management",   label: "הנהלה",       emoji: "📊" },
-  { key: "daily-shared", label: "יומיומי",     emoji: "⚡" },
-  { key: "studio-only",  label: "סטודיו",      emoji: "🛠" },
-];
+/** Grid of line icons to pick from; clicking the picked one again clears it (back to the emoji). */
+function IconPicker({ value, onChange }: { value?: string; onChange: (icon: string | undefined) => void }) {
+  return (
+    <div className="flex gap-1.5 flex-wrap">
+      {ICON_KEYS.map((k) => {
+        const on = value === k;
+        return (
+          <button key={k} type="button" title={ICONS[k].label} onClick={() => onChange(on ? undefined : k)}
+            className="icon-ring" style={{ width: 36, height: 36, cursor: "pointer",
+              ...(on ? { background: "var(--grad-brand)", color: "#fff", borderColor: "transparent" } : {}) }}>
+            <BrandIcon icon={k} size={16} />
+          </button>
+        );
+      })}
+    </div>
+  );
+}
 
 function emptyAsset(firstType: string): Asset {
   return { name: "", type: firstType, description: "", access: "", access_note: null,
@@ -24,10 +36,10 @@ function emptyAsset(firstType: string): Asset {
     install_notes: null, added_by: "admin" };
 }
 function emptyTab(): TabConfig {
-  return { key: "", label: "", emoji: "📌", colorPreset: "sky", showAll: false };
+  return { key: "", label: "", emoji: "📌", icon: "layers", colorPreset: "sky", showAll: false };
 }
 function emptyType(): AssetTypeConfig {
-  return { key: "", label: "", emoji: "🔗", colorPreset: "sky", behavior: "link", btnLabel: "פתח" };
+  return { key: "", label: "", emoji: "🔗", icon: "link", colorPreset: "sky", behavior: "link", btnLabel: "פתח" };
 }
 
 type Section = "assets" | "types" | "tabs" | "settings";
@@ -209,12 +221,8 @@ export function AdminClient({
     setTypes(updated); markDirty("types");
   }
 
-  // ── Audience options (base + dynamic from tabs) ───────────────────
-  const audienceOptions = [
-    ...AUDIENCES_BASE,
-    ...tabs.filter((t) => !AUDIENCES_BASE.find((a) => a.key === t.key))
-           .map((t) => ({ key: t.key, label: t.label, emoji: t.emoji })),
-  ];
+  // ── Audience options — one per tab ─────────────────────────────────
+  const audienceOptions = tabs.map((t) => ({ key: t.key, label: t.label, emoji: t.emoji, icon: t.icon }));
 
   // ═════════════════════════════════════════════════════════════════
   // RENDER
@@ -284,9 +292,11 @@ export function AdminClient({
                 {!isNew && <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>לא ניתן לשנות key קיים (ישפיע על שיוך כלים)</p>}
               </div>
               <div>
-                <label className="admin-label">אמוג&apos;י</label>
+                <label className="admin-label">אייקון</label>
+                <IconPicker value={tabForm.icon} onChange={(icon) => setTabForm((f) => ({ ...f, icon }))} />
+                <p className="text-xs mt-2" style={{ color: "var(--text-muted)" }}>בלי אייקון — מוצג האמוג&apos;י:</p>
                 <input value={tabForm.emoji} onChange={(e) => setTabForm((f) => ({ ...f, emoji: e.target.value }))}
-                  className="admin-input w-full" placeholder="🎓" style={{ fontSize: 20 }} />
+                  className="admin-input w-24 mt-1" placeholder="🎓" style={{ fontSize: 18 }} />
               </div>
               <div>
                 <label className="admin-label">צבע</label>
@@ -304,7 +314,7 @@ export function AdminClient({
                 </div>
                 <div className="mt-3">
                   <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-2xl text-sm font-bold text-white bg-gradient-to-l ${preset.color} ${preset.glowClass}`}>
-                    <span>{tabForm.emoji}</span><span>{tabForm.label || "תצוגה מקדימה"}</span>
+                    <BrandIcon icon={tabForm.icon} emoji={tabForm.emoji} size={16} /><span>{tabForm.label || "תצוגה מקדימה"}</span>
                   </span>
                 </div>
               </div>
@@ -364,9 +374,11 @@ export function AdminClient({
                 {keyTaken && <p className="text-xs mt-1" style={{ color: "#ef4444" }}>המזהה הזה כבר תפוס</p>}
               </div>
               <div>
-                <label className="admin-label">אמוג&apos;י</label>
+                <label className="admin-label">אייקון</label>
+                <IconPicker value={typeForm.icon} onChange={(icon) => setTypeForm((f) => ({ ...f, icon }))} />
+                <p className="text-xs mt-2" style={{ color: "var(--text-muted)" }}>בלי אייקון — מוצג האמוג&apos;י:</p>
                 <input value={typeForm.emoji} onChange={(e) => setTypeForm((f) => ({ ...f, emoji: e.target.value }))}
-                  className="admin-input w-full" placeholder="🌐" style={{ fontSize: 20 }} />
+                  className="admin-input w-24 mt-1" placeholder="🌐" style={{ fontSize: 18 }} />
               </div>
               <div>
                 <label className="admin-label">איך הכרטיס יתנהג</label>
@@ -409,7 +421,7 @@ export function AdminClient({
                 <p className="text-xs font-bold" style={{ color: "var(--text-muted)" }}>תצוגה מקדימה</p>
                 <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-0.5 rounded-full"
                   style={{ background: `${hex}24`, color: hex, border: `1px solid ${hex}4d` }}>
-                  <span>{typeForm.emoji}</span><span>{typeForm.label || "שם הסוג"}</span>
+                  <BrandIcon icon={typeForm.icon} emoji={typeForm.emoji} size={12} /><span>{typeForm.label || "שם הסוג"}</span>
                 </span>
                 {typeForm.behavior === "command" ? (
                   <div className="rounded-lg p-2.5 text-center" style={{ background: "var(--cmd-bg)", border: `1px solid ${hex}4d` }}>
@@ -451,8 +463,13 @@ export function AdminClient({
           </h2>
           <div className="card-glass rounded-2xl p-6 space-y-5">
             <div>
-              <label className="admin-label">שם הכלי *</label>
-              <input value={assetForm.name} onChange={(e) => updateAsset("name", e.target.value)} className="admin-input w-full" placeholder="Safe Play Hub" />
+              <label className="admin-label">שם בעברית *</label>
+              <input value={assetForm.name} onChange={(e) => updateAsset("name", e.target.value)} className="admin-input w-full" placeholder="מרכז משחקי הבטיחות" />
+            </div>
+            <div>
+              <label className="admin-label">שם באנגלית — מוצג מתחת לשם העברי</label>
+              <input value={assetForm.name_en ?? ""} onChange={(e) => updateAsset("name_en", e.target.value || null)}
+                className="admin-input w-full" placeholder="Safe Play Hub" dir="ltr" />
             </div>
 
             <div>
@@ -469,7 +486,7 @@ export function AdminClient({
                     style={assetForm.type === t.key
                       ? { background: PRESET_HEX[t.colorPreset], borderColor: PRESET_HEX[t.colorPreset], color:"#fff" }
                       : { background:"transparent", borderColor:"var(--card-border)", color:"var(--text-sec)" }}>
-                    <span>{t.emoji}</span><span>{t.label}</span>
+                    <BrandIcon icon={t.icon} emoji={t.emoji} size={13} /><span>{t.label}</span>
                   </button>
                 ))}
               </div>
@@ -503,7 +520,7 @@ export function AdminClient({
                   <button key={a.key} onClick={() => toggleAudience(a.key)}
                     className="px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all"
                     style={assetForm.audience.includes(a.key) ? { background:"#6366f1", borderColor:"#6366f1", color:"#fff" } : { background:"transparent", borderColor:"var(--card-border)", color:"var(--text-sec)" }}>
-                    {a.emoji} {a.label}
+                    <BrandIcon icon={a.icon} emoji={a.emoji} size={12} className="inline -mt-0.5" /> {a.label}
                   </button>
                 ))}
               </div>
@@ -671,9 +688,10 @@ export function AdminClient({
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-semibold text-sm" style={{ color:"var(--page-text)" }}>{asset.name}</span>
+                        {asset.name_en && <span className="name-en text-xs" dir="ltr">{asset.name_en}</span>}
                         <span className="text-xs px-2 py-0.5 rounded-full"
                           style={{ background:`${PRESET_HEX[t.colorPreset]}24`, color: PRESET_HEX[t.colorPreset] }}>
-                          {t.emoji} {t.label}
+                          <BrandIcon icon={t.icon} emoji={t.emoji} size={11} className="inline -mt-0.5" /> {t.label}
                         </span>
                         {!asset.access && <span className="text-xs px-2 py-0.5 rounded-full" style={{ background:"rgba(251,191,36,0.15)", color:"#d97706" }}>ללא קישור</span>}
                       </div>
@@ -721,7 +739,7 @@ export function AdminClient({
                     </div>
                     <span className="shrink-0 text-xs font-bold px-2.5 py-1 rounded-full text-white"
                       style={{ background: PRESET_HEX[t.colorPreset] }}>
-                      {t.emoji} {t.label}
+                      <BrandIcon icon={t.icon} emoji={t.emoji} size={12} className="inline -mt-0.5" /> {t.label}
                     </span>
                     <div className="flex-1 min-w-0">
                       <p className="text-xs truncate" style={{ color:"var(--text-muted)" }}>
@@ -766,7 +784,7 @@ export function AdminClient({
                         style={{ background:"var(--copy-bg)", color:"var(--text-sec)", opacity:i===tabs.length-1?0.3:1, cursor:i===tabs.length-1?"not-allowed":"pointer" }}>↓</button>
                     </div>
                     <span className={`shrink-0 text-xs font-bold px-2.5 py-1 rounded-full text-white bg-gradient-to-l ${pr.color}`}>
-                      {tab.emoji} {tab.label}
+                      <BrandIcon icon={tab.icon} emoji={tab.emoji} size={12} className="inline -mt-0.5" /> {tab.label}
                     </span>
                     <div className="flex-1 min-w-0">
                       <p className="text-xs truncate" style={{ color:"var(--text-muted)" }}>
