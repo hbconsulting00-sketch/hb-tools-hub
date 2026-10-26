@@ -9,6 +9,7 @@ Admin: https://hb-tools-hub.vercel.app/admin
 ## Stack
 - Next.js 16 (App Router) + TypeScript
 - Tailwind CSS v4 (CSS-first: `@import "tailwindcss"`)
+- עיצוב לפי HB Brand Kit v1.1 — טוקנים ב-`app/globals.css`, לוגואים ב-`public/brand/`, אייקונים lucide-react
 - Vercel (hosting) + Upstash Redis (storage)
 - RTL Hebrew (`lang="he" dir="rtl"`)
 
@@ -21,9 +22,11 @@ app/
     AdminClient.tsx ← ממשק ניהול (client component)
   api/admin/
     assets/route.ts ← POST שומר ל-Redis
+    export/route.ts ← GET גיבוי מלא
+    migrate/route.ts← מעבר חד-פעמי ל-7 הכרטיסיות (בוצע 26.10)
     verify/route.ts ← POST מאמת סיסמה
 components/
-  AssetCard.tsx     ← כרטיס כלי (tool/skill/agent/extension)
+  AssetCard.tsx     ← כרטיס כלי: שמות, תגיות, קודים, קישורים, כפתור ראשי
   ThemeToggle.tsx   ← כפתור dark/light
 data/
   assets.json       ← ברירת מחדל לכלים (fallback כשRedis ריק)
@@ -31,13 +34,20 @@ data/
   settings.json     ← ברירת מחדל להגדרות
 lib/
   redis.ts          ← redisGet / redisSet (Upstash)
-  tabPresets.ts     ← ColorPreset, TabConfig, COLOR_PRESETS
+  tabPresets.ts     ← TabConfig, featuredKey/orderTabs (כרטיסייה מודגשת)
+  assetTypes.ts     ← AssetTypeConfig (סוגים)
+  assetLinks.ts     ← codes/links + קריאה של השדות הישנים
+  icons.tsx         ← רשימת האייקונים + BrandIcon
+scripts/
+  build-reclassified.py ← בונה את data/*.json מהגיבוי
+HANDOFF.md          ← איפה עצרנו — לקרוא בתחילת כל סשן
 ```
 
 ## ארכיטקטורה — Storage
 הנתונים חיים ב-Upstash Redis (לא בקוד):
 - `redis.get("assets")` → מערך כלים
-- `redis.get("tabs")` → מערך כרטיסיות  
+- `redis.get("tabs")` → מערך כרטיסיות
+- `redis.get("types")` → מערך סוגים  
 - `redis.get("settings")` → { siteTitle, siteSubtitle }
 
 הדפים קוראים מ-Redis בכל request. אם Redis ריק → fallback לקבצי JSON בתיקיית `data/`.
@@ -57,10 +67,13 @@ lib/
 - שינויים נשמרים מיידית ב-Redis (ללא redeploy)
 
 ## Asset Types
-- `tool` — כלי רגיל עם קישור גישה
-- `skill` — סקיל Claude Code עם פקודת `/`
-- `agent` — סוכן AI
-- `extension` — תוסף Chrome (הורדת ZIP + הוראות התקנה)
+הסוגים נערכים באדמין (Redis `types`): `tool` · `tools` · `website` · `form` · `agent` ·
+`skill` (behavior=command, פקודת `/`) · `extension` (behavior=download, ZIP).
+
+## כלי (asset) — שדות עיקריים
+`name` (עברית) · `name_en` · `description` (עד 120 תווים) · `type` · `access` (הכפתור הראשי) ·
+`audience` (= הכרטיסיות) · `codes` · `links` · `install_notes` (שורה לכל שלב).
+שדות ישנים (`access_note`, `guide_url`, `install_url`, `template_url`) עדיין נתמכים בתצוגה.
 
 ## פיתוח מקומי
 ```bash
