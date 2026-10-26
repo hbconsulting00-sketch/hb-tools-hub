@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Asset, AssetCard } from "@/components/AssetCard";
-import { TabConfig, ColorPreset, COLOR_PRESETS, PRESET_LABELS, PRESET_HEX, ALL_PRESETS } from "@/lib/tabPresets";
+import { TabConfig, ColorPreset, COLOR_PRESETS, PRESET_LABELS, PRESET_HEX, ALL_PRESETS, featuredKey } from "@/lib/tabPresets";
 import { AssetTypeConfig, TypeBehavior, BEHAVIORS, BEHAVIOR_LABELS, INSTALL_PRESETS, findType } from "@/lib/assetTypes";
 import { BrandIcon, ICONS, ICON_KEYS } from "@/lib/icons";
 import { CARD_COMPONENTS, LINK_ICON_KEYS, iconForUrl, migrateLegacy } from "@/lib/assetLinks";
@@ -228,7 +228,9 @@ export function AdminClient({
   function openTabEdit(i: number) { setTabForm({ ...tabs[i] }); setEditingIndex(i); setFormTarget("tab"); }
 
   function commitTab() {
-    const updated = [...tabs];
+    // Only one featured tab: turning it on here turns it off everywhere else.
+    let updated = [...tabs];
+    if (tabForm.featured) updated = updated.map((t) => ({ ...t, featured: false }));
     if (editingIndex === -1) { updated.push(tabForm); } else { updated[editingIndex] = tabForm; }
     setTabs(updated); markDirty("tabs"); closeForm();
   }
@@ -375,6 +377,17 @@ export function AdminClient({
                     style={{ right: tabForm.showAll ? "2px":"auto", left: tabForm.showAll ? "auto":"2px" }} />
                 </button>
                 <span className="text-sm" style={{ color:"var(--page-text)" }}>הצג את כל הכלים (סופר-סט)</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <button onClick={() => setTabForm((f) => ({ ...f, featured: !(f.featured ?? featuredKey(tabs) === f.key) }))}
+                  className="w-10 h-5 rounded-full relative shrink-0 transition-all"
+                  style={{ background: (tabForm.featured ?? featuredKey(tabs) === tabForm.key) ? "var(--grad-brand)":"var(--toggle-off)", border:"1px solid var(--toggle-border)" }}>
+                  <span className="absolute top-0.5 w-4 h-4 rounded-full bg-white transition-all"
+                    style={{ right: (tabForm.featured ?? featuredKey(tabs) === tabForm.key) ? "2px":"auto", left: (tabForm.featured ?? featuredKey(tabs) === tabForm.key) ? "auto":"2px" }} />
+                </button>
+                <span className="text-sm" style={{ color:"var(--page-text)" }}>
+                  כרטיסייה מודגשת — ראשונה, נפתחת כשנכנסים לאתר, עם מסגרת צבעונית
+                </span>
               </div>
               <div className="flex gap-3 pt-1">
                 <button onClick={commitTab} disabled={!tabForm.label || !tabForm.key}

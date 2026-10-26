@@ -11,6 +11,23 @@ export interface TabConfig {
   icon?: string;
   colorPreset: ColorPreset;
   showAll?: boolean;
+  /** Featured tab: shown first, opened by default, outlined in the Aurora gradient. One at most. */
+  featured?: boolean;
+}
+
+/**
+ * The featured tab's key. Until any tab has the flag set in the admin panel,
+ * "news" (מה חדש) is the featured one.
+ */
+export function featuredKey(tabs: TabConfig[]): string | undefined {
+  if (tabs.some((t) => t.featured !== undefined)) return tabs.find((t) => t.featured)?.key;
+  return tabs.find((t) => t.key === "news")?.key;
+}
+
+/** Tabs in display order: the featured one first, the rest as arranged in the admin panel. */
+export function orderTabs(tabs: TabConfig[]): TabConfig[] {
+  const f = featuredKey(tabs);
+  return [...tabs.filter((t) => t.key === f), ...tabs.filter((t) => t.key !== f)];
 }
 
 export const COLOR_PRESETS: Record<ColorPreset, {
