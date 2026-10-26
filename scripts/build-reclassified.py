@@ -70,9 +70,12 @@ NAMES = {
     43: ("משחק סימולציה לתרגול SDS", "SDS Simulation Game"),
 }
 
+# Removed from the site entirely: 33 (AI trainee simulation — the link leads nowhere).
+REMOVED = {33}
+
 # Usage text that lived inside descriptions moves to the install-notes field.
 NOTES = {
-    34: "קישור למשובים: https://hb-tools-dashboard.vercel.app/",
+    19: "הסקיל בפיתוח — יהיה זמין בקרוב",
     39: "\n".join([
         "למלא את הטופס",
         "לחתום בתחתית העמוד",
@@ -80,9 +83,54 @@ NOTES = {
     ]),
 }
 
+# Codes shown with a copy button: (label, value).
+CODES = {
+    1: [("סיסמה", "HB@Safety2026")],
+    36: [("קוד כניסה", "HB-7Q8S-J68P")],
+}
+
+# Every extra link, with a label that says what it is. Replaces the old
+# guide_url / install_url / template_url fields, which were used loosely
+# (Drive folders in "install file", ZIPs in "source code").
+L = lambda label, icon, url: {"label": label, "url": url, "icon": icon}
+BRIEFING = "https://hb-tools-briefing.vercel.app/"
+LINKS = {
+    1:  [L("סרטון הדרכה", "video", "https://youtu.be/ZIb95ZtViNE"),
+         L("קוד מקור", "code", "https://github.com/hbconsulting00-sketch/safeplay-hub")],
+    2:  [L("דף הסבר על הכלי", "book", BRIEFING),
+         L("קוד מקור", "code", "https://github.com/hbconsulting00-sketch/safety-assistant-legislation")],
+    3:  [L("דף הסבר על הכלי", "book", BRIEFING),
+         L("קוד מקור", "code", "https://github.com/hbconsulting00-sketch/hb-safety-tools")],
+    4:  [L("דף הסבר על הכלי", "book", BRIEFING),
+         L("קוד מקור", "code", "https://github.com/hbconsulting00-sketch/hb-ai-operations")],
+    5:  [L("סרטון הדרכה", "video", "https://youtu.be/8EWKeZagsDQ")],
+    7:  [L("קוד מקור", "code", "https://github.com/hbconsulting00-sketch/hebrew-language-editor")],
+    8:  [L("סרטון הדרכה", "video", "https://youtu.be/wwTH1ty5jzY")],
+    10: [L("סרטון הדרכה", "video", "https://youtu.be/E_KMQrCAVz4"),
+         L("קוד מקור", "code", "https://github.com/hbconsulting00-sketch/hb-mini-lms")],
+    11: [L("תבנית בגיטהאב", "code", "https://github.com/hbconsulting00-sketch/hbc-onepager")],
+    12: [L("תבנית בגיטהאב", "code", "https://github.com/hbconsulting00-sketch/hb-lead-magnet")],
+    13: [L("תבנית בגיטהאב", "code", "https://github.com/hbconsulting00-sketch/hb-chatbot-backend")],
+    15: [L("קבצי הסקיל", "download", "https://github.com/hbconsulting00-sketch/elearning-builder-4")],
+    16: [L("קבצי הסקיל", "download", "https://github.com/hbconsulting00-sketch/hb-tools-hub/tree/main/skills/find-skills")],
+    17: [L("קבצי הסקיל", "download", "https://github.com/hbconsulting00-sketch/hb-tools-hub/tree/main/skills/frontend-design")],
+    18: [L("קבצי הסקיל", "download", "https://github.com/hbconsulting00-sketch/hb-tools-hub/tree/main/skills/ux-design-mentor")],
+    19: [L("קבצי הסקיל", "download", "https://github.com/hbconsulting00-sketch/hb-multiplayer-games")],
+    28: [L("קוד מקור", "code", "https://github.com/hbconsulting00-sketch/rtl-fixer-extension")],
+    34: [L("דשבורד המשובים", "chart", "https://hb-tools-dashboard.vercel.app/")],
+    36: [L("מדריך שימוש", "book", "https://docs.google.com/document/d/1aPrC3oiD9kg27-7IgXel5dn57ElZ1IWUaDychUQxvg0/edit?usp=sharing"),
+         L("תיקייה בדרייב", "folder", "https://drive.google.com/drive/folders/1l3-7Q8Wc7h6iK5xBkaTXwd2gib_3HWho?usp=sharing")],
+    38: [L("מדריך שימוש", "book", "https://claude.ai/artifact/MbNY44jJAAczzduapmGZ5y"),
+         L("תיקייה בדרייב", "folder", "https://drive.google.com/drive/folders/1Pf8-vX8UoeTObEU1P1ccLBmVCYe9RiSI?usp=drive_link")],
+    39: [L("תיקיית הריכוז בדרייב", "folder", "https://drive.google.com/drive/folders/1WJQ9obndGtUb7-hfJpYbMGXQe9tJB1mC?usp=drive_link")],
+    43: [L("מדריך שימוש", "book", "https://claude.ai/artifact/TwTG3yaRbycoYnNBJa1FxR")],
+}
+# The RTL Fixer's main button downloads the ZIP directly.
+ACCESS = {28: "https://github.com/hbconsulting00-sketch/rtl-fixer-extension/raw/main/rtl-fixer-extension.zip"}
+
 assets = []
 for n, a in enumerate(backup["assets"], 1):
-    if n not in tab_of:  # 14 (old elearning-builder) is retired
+    if n not in tab_of or n in REMOVED:  # 14 (old elearning-builder) is retired
         continue
     a = dict(a)
     he, en = NAMES[n]
@@ -92,6 +140,12 @@ for n, a in enumerate(backup["assets"], 1):
     a["audience"] = [tab_of[n]] + (["news"] if "news" in a["audience"] else [])
     if n in NOTES:
         a["install_notes"] = NOTES[n]
+    if n in ACCESS:
+        a["access"] = ACCESS[n]
+    a["codes"] = [{"label": l, "value": v} for l, v in CODES.get(n, [])]
+    a["links"] = LINKS.get(n, [])
+    # Old fields are folded into codes/links above.
+    a.update(access_note=None, has_guide=False, guide_url=None, install_url=None, template_url=None)
     assets.append(a)
 
 tabs = [

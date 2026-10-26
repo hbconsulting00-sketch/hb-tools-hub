@@ -573,3 +573,24 @@ html.light .card-glass::after { background: radial-gradient(circle, rgba(201,167
 .btn-outline-brand:hover { background: var(--ghost-hover); transform: translateY(-1px); }
 
 :focus-visible { outline: 2px solid var(--hb-sky); outline-offset: 2px; }
+
+/* Quick-access rows on the card */
+.code-row { color: var(--accent); }
+.code-value { font-family: 'DM Mono', 'Courier New', monospace; color: var(--page-text); letter-spacing: 0.02em; }
+.copy-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 30px; height: 30px; border-radius: 9px; flex-shrink: 0; cursor: pointer;
+  color: var(--accent); background: var(--ghost-bg); border: 1px solid var(--ghost-border);
+  transition: background 0.18s ease, border-color 0.18s ease;
+}
+.copy-btn:hover { background: var(--ghost-hover); border-color: var(--card-border-hover); }
+
+.link-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 6px 10px 6px 8px; border-radius: 12px;
+  color: var(--page-text);
+  background: var(--ghost-bg); border: 1px solid var(--ghost-border);
+  transition: background 0.18s ease, border-color 0.18s ease, transform 0.14s ease;
+}
+.link-row:hover { background: var(--ghost-hover); border-color: var(--card-border-hover); transform: translateX(-2px); }
+.link-host { color: var(--text-muted); font-family: 'Montserrat', sans-serif; }

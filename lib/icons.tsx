@@ -4,6 +4,7 @@ import {
   HardHat, ShieldCheck, Siren, Flame, FlaskConical, GraduationCap, BookOpen,
   Users, Briefcase, Lightbulb, Rocket, Star, Heart, Target, Layers, Palette,
   Video, MessageSquare, Calendar, Search, Settings, Bell, Compass,
+  Folder, Code2, Download, KeyRound,
   type LucideIcon,
 } from "lucide-react";
 
@@ -50,6 +51,10 @@ export const ICONS: Record<string, { Icon: LucideIcon; label: string }> = {
   settings:     { Icon: Settings,            label: "הגדרות" },
   bell:         { Icon: Bell,                label: "התראה" },
   compass:      { Icon: Compass,             label: "מצפן" },
+  folder:       { Icon: Folder,              label: "תיקייה" },
+  code:         { Icon: Code2,               label: "קוד" },
+  download:     { Icon: Download,            label: "הורדה" },
+  key:          { Icon: KeyRound,            label: "מפתח" },
 };
 
 export const ICON_KEYS = Object.keys(ICONS);

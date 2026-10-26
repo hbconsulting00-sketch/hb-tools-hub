@@ -26,9 +26,6 @@ export default async function Home({
   const activeTabKey = params.tab ?? tabs[0]?.key ?? "";
   const activeTab    = tabs.find((t) => t.key === activeTabKey) ?? tabs[0];
 
-  // Source links show on the studio tab (and on the old "show everything" tab).
-  const isStudio = activeTab.showAll || activeTab.key === "studio";
-
   const tabAssets = activeTab.showAll
     ? assets
     : assets.filter((a) => a.audience.includes(activeTab.key));
@@ -101,7 +98,6 @@ export default async function Home({
                   asset={asset}
                   types={types}
                   tabs={tabs}
-                  isStudio={isStudio}
                 />
               ))}
             </div>

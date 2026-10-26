@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Copy, Check, KeyRound, ArrowUpLeft, Download, BookOpen, Package, ChevronDown, ListChecks, Hammer } from "lucide-react";
+import { Copy, Check, ArrowUpLeft, Download, ChevronDown, ListChecks, Hammer } from "lucide-react";
 import { AssetTypeConfig, findType } from "@/lib/assetTypes";
 import { TabConfig } from "@/lib/tabPresets";
 import { BrandIcon } from "@/lib/icons";
+import { AssetLink, AssetCode, cardLinks, cardCodes } from "@/lib/assetLinks";
 
 export interface Asset {
   /** Hebrew name — the big title on the card. */
@@ -15,7 +16,12 @@ export interface Asset {
   type: string;
   description: string;
   access: string;
+  /** Old single code field — still read; new codes go in `codes`. */
   access_note: string | null;
+  /** Passwords / codes, each with a copy button on the card. */
+  codes?: AssetCode[] | null;
+  /** Everything else worth one click: guide, Drive folder, source code… */
+  links?: AssetLink[] | null;
   audience: string[];
   has_guide: boolean;
   guide_url?: string | null;
@@ -26,19 +32,21 @@ export interface Asset {
   added_by: string;
 }
 
+/** "drive.google.com" — a quiet hint of where a link goes. */
+function host(url: string): string {
+  try { return new URL(url).hostname.replace(/^www\./, ""); } catch { return ""; }
+}
+
 export function AssetCard({
   asset,
   types,
   tabs,
-  isStudio = false,
 }: {
   asset: Asset;
   types: AssetTypeConfig[];
   tabs: TabConfig[];
-  isStudio?: boolean;
 }) {
-  const [copied, setCopied] = useState(false);
-  const [copiedPass, setCopiedPass] = useState(false);
+  const [copied, setCopied] = useState<string | null>(null);
 
   const cfg = findType(types, asset.type);
   // The card's category is the first tab it belongs to that isn't "what's new".
@@ -49,18 +57,14 @@ export function AssetCard({
   const target = asset.access?.trim() || (cfg.behavior === "download" ? asset.template_url?.trim() ?? "" : "");
   const hasTarget = target !== "";
   const steps = (asset.install_notes ?? "").split("\n").map((s) => s.trim()).filter(Boolean);
+  const links = cardLinks(asset, target);
+  const codes = cardCodes(asset);
 
-  function copyCommand() {
-    navigator.clipboard.writeText(asset.access);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2200);
-  }
-
-  function copyPassword() {
-    if (!asset.access_note) return;
-    navigator.clipboard.writeText(asset.access_note.replace(/^סיסמה:\s*/i, ""));
-    setCopiedPass(true);
-    setTimeout(() => setCopiedPass(false), 2200);
+  /** Copy a value; `id` marks which button shows the tick. */
+  function copy(id: string, value: string) {
+    navigator.clipboard.writeText(value);
+    setCopied(id);
+    setTimeout(() => setCopied((c) => (c === id ? null : c)), 2200);
   }
 
   const comingSoon = (
@@ -110,58 +114,45 @@ export function AssetCard({
       </div>
 
       {/* Description */}
-      <p className="text-sm leading-relaxed flex-1" style={{ color: "var(--text-sec)" }}>
+      <p className="text-sm leading-relaxed" style={{ color: "var(--text-sec)" }}>
         {asset.description}
       </p>
 
-      {/* ── MAIN ACTION ──────────────────────────────────── */}
-      {cfg.behavior === "command" ? (
-        hasTarget ? (
-          <div className="space-y-2">
-            <div className="card-well rounded-xl p-3 text-center">
-              <p className="text-xs mb-1" style={{ color: "var(--text-muted)" }}>הפקודה ב-Claude Code</p>
-              <span className="cmd-text text-base font-bold tracking-wide" dir="ltr">
-                {asset.access}
+      {/* ── CODES — passwords and entry codes, copy in one click ── */}
+      {codes.length > 0 && (
+        <div className="card-well rounded-xl divide-y" style={{ borderColor: "var(--well-border)" }}>
+          {codes.map((c, i) => (
+            <div key={i} className="code-row flex items-center gap-2 px-3 py-2">
+              <BrandIcon icon="key" size={14} className="shrink-0 opacity-70" />
+              <span className="text-xs shrink-0" style={{ color: "var(--text-muted)" }}>{c.label}</span>
+              <span className="code-value text-sm font-semibold truncate min-w-0 flex-1" dir="ltr" style={{ textAlign: "right" }}>
+                {c.value}
               </span>
+              <button onClick={() => copy(`code${i}`, c.value)} className="copy-btn" aria-label={`העתק ${c.label}`} title="העתק">
+                {copied === `code${i}` ? <Check size={14} aria-hidden="true" /> : <Copy size={14} aria-hidden="true" />}
+              </button>
             </div>
-            <button
-              onClick={copyCommand}
-              className="btn-brand w-full flex items-center justify-center gap-2 text-sm font-semibold py-2.5 px-4 rounded-xl"
-            >
-              {copied ? <Check size={16} aria-hidden="true" /> : <Copy size={16} aria-hidden="true" />}
-              <span>{copied ? "הועתק!" : "העתק פקודה"}</span>
-            </button>
-          </div>
-        ) : (
-          comingSoon
-        )
-      ) : hasTarget ? (
-        <a
-          href={target}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="btn-brand flex items-center justify-center gap-2 text-sm font-semibold py-2.5 px-4 rounded-xl"
-        >
-          {cfg.behavior === "download" && <Download size={16} aria-hidden="true" />}
-          <span>{cfg.btnLabel}</span>
-          {cfg.behavior !== "download" && <ArrowUpLeft size={16} className="opacity-85" aria-hidden="true" />}
-        </a>
-      ) : (
-        comingSoon
+          ))}
+        </div>
       )}
 
-      {/* Password / access note */}
-      {asset.access_note && (
-        <button
-          onClick={copyPassword}
-          className={`btn-ghost w-full flex items-center justify-center gap-1.5 text-xs py-2 px-3 rounded-xl ${copiedPass ? "is-done" : ""}`}
-        >
-          {copiedPass ? <Check size={13} aria-hidden="true" /> : <KeyRound size={13} aria-hidden="true" />}
-          <span>{copiedPass ? "סיסמה הועתקה!" : asset.access_note}</span>
-        </button>
+      {/* ── LINKS — guide, Drive folder, source… each one row ── */}
+      {links.length > 0 && (
+        <ul className="space-y-1.5">
+          {links.map((l, i) => (
+            <li key={i}>
+              <a href={l.url} target="_blank" rel="noopener noreferrer" className="link-row">
+                <span className="icon-ring" style={{ width: 28, height: 28 }}><BrandIcon icon={l.icon} size={14} /></span>
+                <span className="text-sm font-medium shrink-0 max-w-[70%] truncate">{l.label}</span>
+                <span className="link-host text-[11px] flex-1 min-w-0 truncate" dir="ltr" style={{ textAlign: "left" }}>{host(l.url)}</span>
+                <ArrowUpLeft size={14} className="shrink-0 opacity-60" aria-hidden="true" />
+              </a>
+            </li>
+          ))}
+        </ul>
       )}
 
-      {/* ── INSTALL INSTRUCTIONS — only when she wrote some ── */}
+      {/* ── STEPS — only when she wrote some ── */}
       {steps.length > 0 && (
         <details className="install-details card-well rounded-xl">
           <summary
@@ -183,33 +174,35 @@ export function AssetCard({
         </details>
       )}
 
-      {/* ── SECONDARY LINKS — each appears only if filled ── */}
-      {(asset.install_url || (isStudio && asset.template_url)) && (
-        <div className="flex gap-2 flex-wrap">
-          {asset.install_url && (
-            <a href={asset.install_url} target="_blank" rel="noopener noreferrer"
-              className="btn-ghost flex-1 flex items-center justify-center gap-1.5 text-xs font-semibold py-2 px-3 rounded-xl">
-              <Download size={13} aria-hidden="true" /><span>קובץ התקנה</span>
-            </a>
-          )}
-          {isStudio && asset.template_url && (
-            <a href={asset.template_url} target="_blank" rel="noopener noreferrer"
-              className="btn-ghost flex-1 flex items-center justify-center gap-1.5 text-xs font-semibold py-2 px-3 rounded-xl">
-              <Package size={13} aria-hidden="true" /><span>קוד מקור</span>
-            </a>
-          )}
-        </div>
-      )}
-
-      {/* ── GUIDE BUTTON — only when there is a guide to open ── */}
-      {asset.has_guide && asset.guide_url && (
-        <a href={asset.guide_url} target="_blank" rel="noopener noreferrer"
-          className="btn-outline-brand flex items-center justify-center gap-2 text-sm font-semibold py-2.5 px-4 rounded-xl">
-          <BookOpen size={16} aria-hidden="true" />
-          <span>מדריך שימוש</span>
-          <ArrowUpLeft size={14} className="opacity-70" aria-hidden="true" />
-        </a>
-      )}
+      {/* ── MAIN ACTION — pinned to the bottom so cards line up ── */}
+      <div className="mt-auto pt-1">
+        {cfg.behavior === "command" ? (
+          hasTarget ? (
+            <div className="space-y-2">
+              <div className="card-well rounded-xl p-3 text-center">
+                <p className="text-xs mb-1" style={{ color: "var(--text-muted)" }}>הפקודה ב-Claude Code</p>
+                <span className="cmd-text text-base font-bold tracking-wide" dir="ltr">{asset.access}</span>
+              </div>
+              <button onClick={() => copy("cmd", asset.access)}
+                className="btn-brand w-full flex items-center justify-center gap-2 text-sm font-semibold py-2.5 px-4 rounded-xl">
+                {copied === "cmd" ? <Check size={16} aria-hidden="true" /> : <Copy size={16} aria-hidden="true" />}
+                <span>{copied === "cmd" ? "הועתק!" : "העתק פקודה"}</span>
+              </button>
+            </div>
+          ) : (
+            comingSoon
+          )
+        ) : hasTarget ? (
+          <a href={target} target="_blank" rel="noopener noreferrer"
+            className="btn-brand flex items-center justify-center gap-2 text-sm font-semibold py-2.5 px-4 rounded-xl">
+            {cfg.behavior === "download" && <Download size={16} aria-hidden="true" />}
+            <span>{cfg.btnLabel}</span>
+            {cfg.behavior !== "download" && <ArrowUpLeft size={16} className="opacity-85" aria-hidden="true" />}
+          </a>
+        ) : (
+          comingSoon
+        )}
+      </div>
     </div>
   );
 }

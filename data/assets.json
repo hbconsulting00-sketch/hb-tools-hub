@@ -4,16 +4,34 @@
     "type": "tool",
     "description": "משחקי הדרכה ומצגות בטיחות עדכניים, כל משחק לנושא אחר. משחקים אישיים וקבוצתיים — להפעלה מול קבוצה או לתרגול עצמי.",
     "access": "https://hb-safeplayhub.netlify.app/",
-    "access_note": "סיסמה: HB@Safety2026",
+    "access_note": null,
     "audience": [
       "games"
     ],
-    "has_guide": true,
-    "guide_url": "https://youtu.be/ZIb95ZtViNE",
+    "has_guide": false,
+    "guide_url": null,
     "install_url": null,
-    "template_url": "https://github.com/hbconsulting00-sketch/safeplay-hub",
+    "template_url": null,
     "added_by": "admin",
-    "name_en": "Safe Play Hub"
+    "name_en": "Safe Play Hub",
+    "codes": [
+      {
+        "label": "סיסמה",
+        "value": "HB@Safety2026"
+      }
+    ],
+    "links": [
+      {
+        "label": "סרטון הדרכה",
+        "url": "https://youtu.be/ZIb95ZtViNE",
+        "icon": "video"
+      },
+      {
+        "label": "קוד מקור",
+        "url": "https://github.com/hbconsulting00-sketch/safeplay-hub",
+        "icon": "code"
+      }
+    ]
   },
   {
     "name": "עוזר חקיקת בטיחות",
@@ -24,12 +42,25 @@
     "audience": [
       "documents"
     ],
-    "has_guide": true,
-    "guide_url": "https://hb-tools-briefing.vercel.app/",
+    "has_guide": false,
+    "guide_url": null,
     "install_url": null,
-    "template_url": "https://github.com/hbconsulting00-sketch/safety-assistant-legislation",
+    "template_url": null,
     "added_by": "admin",
-    "name_en": "Safety IL"
+    "name_en": "Safety IL",
+    "codes": [],
+    "links": [
+      {
+        "label": "דף הסבר על הכלי",
+        "url": "https://hb-tools-briefing.vercel.app/",
+        "icon": "book"
+      },
+      {
+        "label": "קוד מקור",
+        "url": "https://github.com/hbconsulting00-sketch/safety-assistant-legislation",
+        "icon": "code"
+      }
+    ]
   },
   {
     "name": "בודק נהלי בטיחות",
@@ -40,12 +71,25 @@
     "audience": [
       "documents"
     ],
-    "has_guide": true,
-    "guide_url": "https://hb-tools-briefing.vercel.app/",
+    "has_guide": false,
+    "guide_url": null,
     "install_url": null,
-    "template_url": "https://github.com/hbconsulting00-sketch/hb-safety-tools",
+    "template_url": null,
     "added_by": "admin",
-    "name_en": "HB Safety Tools"
+    "name_en": "HB Safety Tools",
+    "codes": [],
+    "links": [
+      {
+        "label": "דף הסבר על הכלי",
+        "url": "https://hb-tools-briefing.vercel.app/",
+        "icon": "book"
+      },
+      {
+        "label": "קוד מקור",
+        "url": "https://github.com/hbconsulting00-sketch/hb-safety-tools",
+        "icon": "code"
+      }
+    ]
   },
   {
     "name": "ניהול ועדות בטיחות",
@@ -56,12 +100,25 @@
     "audience": [
       "operations"
     ],
-    "has_guide": true,
-    "guide_url": "https://hb-tools-briefing.vercel.app/",
+    "has_guide": false,
+    "guide_url": null,
     "install_url": null,
-    "template_url": "https://github.com/hbconsulting00-sketch/hb-ai-operations",
+    "template_url": null,
     "added_by": "admin",
-    "name_en": "AI-Operation"
+    "name_en": "AI-Operation",
+    "codes": [],
+    "links": [
+      {
+        "label": "דף הסבר על הכלי",
+        "url": "https://hb-tools-briefing.vercel.app/",
+        "icon": "book"
+      },
+      {
+        "label": "קוד מקור",
+        "url": "https://github.com/hbconsulting00-sketch/hb-ai-operations",
+        "icon": "code"
+      }
+    ]
   },
   {
     "name": "משימות מפגישות לצוות",
@@ -72,11 +129,20 @@
     "audience": [
       "operations"
     ],
-    "has_guide": true,
-    "guide_url": "https://youtu.be/8EWKeZagsDQ",
+    "has_guide": false,
+    "guide_url": null,
     "install_url": null,
     "added_by": "admin",
-    "name_en": "Meeting Ops Teams"
+    "name_en": "Meeting Ops Teams",
+    "codes": [],
+    "links": [
+      {
+        "label": "סרטון הדרכה",
+        "url": "https://youtu.be/8EWKeZagsDQ",
+        "icon": "video"
+      }
+    ],
+    "template_url": null
   },
   {
     "name": "מסכם פגישות",
@@ -91,7 +157,10 @@
     "guide_url": null,
     "install_url": null,
     "added_by": "admin",
-    "name_en": "Meeting Summarizer"
+    "name_en": "Meeting Summarizer",
+    "codes": [],
+    "links": [],
+    "template_url": null
   },
   {
     "name": "עורך לשוני",
@@ -105,9 +174,17 @@
     "has_guide": false,
     "guide_url": null,
     "install_url": null,
-    "template_url": "https://github.com/hbconsulting00-sketch/hebrew-language-editor",
+    "template_url": null,
     "added_by": "admin",
-    "name_en": "Hebrew Language Editor"
+    "name_en": "Hebrew Language Editor",
+    "codes": [],
+    "links": [
+      {
+        "label": "קוד מקור",
+        "url": "https://github.com/hbconsulting00-sketch/hebrew-language-editor",
+        "icon": "code"
+      }
+    ]
   },
   {
     "name": "עוזר טרום-מכירה",
@@ -118,11 +195,20 @@
     "audience": [
       "marketing"
     ],
-    "has_guide": true,
-    "guide_url": "https://youtu.be/wwTH1ty5jzY",
+    "has_guide": false,
+    "guide_url": null,
     "install_url": null,
     "added_by": "admin",
-    "name_en": "HB Pre-Sale Assistant"
+    "name_en": "HB Pre-Sale Assistant",
+    "codes": [],
+    "links": [
+      {
+        "label": "סרטון הדרכה",
+        "url": "https://youtu.be/wwTH1ty5jzY",
+        "icon": "video"
+      }
+    ],
+    "template_url": null
   },
   {
     "name": "סיכום ומשימות מפגישה",
@@ -137,7 +223,10 @@
     "guide_url": null,
     "install_url": null,
     "added_by": "admin",
-    "name_en": "MeetingOps"
+    "name_en": "MeetingOps",
+    "codes": [],
+    "links": [],
+    "template_url": null
   },
   {
     "name": "מערכת למידה ללקוחות",
@@ -148,12 +237,25 @@
     "audience": [
       "operations"
     ],
-    "has_guide": true,
-    "guide_url": "https://youtu.be/E_KMQrCAVz4",
+    "has_guide": false,
+    "guide_url": null,
     "install_url": null,
-    "template_url": "https://github.com/hbconsulting00-sketch/hb-mini-lms",
+    "template_url": null,
     "added_by": "admin",
-    "name_en": "HB Mini LMS"
+    "name_en": "HB Mini LMS",
+    "codes": [],
+    "links": [
+      {
+        "label": "סרטון הדרכה",
+        "url": "https://youtu.be/E_KMQrCAVz4",
+        "icon": "video"
+      },
+      {
+        "label": "קוד מקור",
+        "url": "https://github.com/hbconsulting00-sketch/hb-mini-lms",
+        "icon": "code"
+      }
+    ]
   },
   {
     "name": "דף הצגה לארגון",
@@ -167,9 +269,17 @@
     "has_guide": false,
     "guide_url": null,
     "install_url": null,
-    "template_url": "https://github.com/hbconsulting00-sketch/hbc-onepager",
+    "template_url": null,
     "added_by": "admin",
-    "name_en": "HBC Onepager"
+    "name_en": "HBC Onepager",
+    "codes": [],
+    "links": [
+      {
+        "label": "תבנית בגיטהאב",
+        "url": "https://github.com/hbconsulting00-sketch/hbc-onepager",
+        "icon": "code"
+      }
+    ]
   },
   {
     "name": "מגנט לידים",
@@ -183,9 +293,17 @@
     "has_guide": false,
     "guide_url": null,
     "install_url": null,
-    "template_url": "https://github.com/hbconsulting00-sketch/hb-lead-magnet",
+    "template_url": null,
     "added_by": "admin",
-    "name_en": "Lead Magnet"
+    "name_en": "Lead Magnet",
+    "codes": [],
+    "links": [
+      {
+        "label": "תבנית בגיטהאב",
+        "url": "https://github.com/hbconsulting00-sketch/hb-lead-magnet",
+        "icon": "code"
+      }
+    ]
   },
   {
     "name": "צ'אטבוט ייעודי",
@@ -199,9 +317,17 @@
     "has_guide": false,
     "guide_url": null,
     "install_url": null,
-    "template_url": "https://github.com/hbconsulting00-sketch/hb-chatbot-backend",
+    "template_url": null,
     "added_by": "admin",
-    "name_en": "HB Chatbot"
+    "name_en": "HB Chatbot",
+    "codes": [],
+    "links": [
+      {
+        "label": "תבנית בגיטהאב",
+        "url": "https://github.com/hbconsulting00-sketch/hb-chatbot-backend",
+        "icon": "code"
+      }
+    ]
   },
   {
     "name": "בונה לומדות",
@@ -214,9 +340,18 @@
     ],
     "has_guide": false,
     "guide_url": null,
-    "install_url": "https://github.com/hbconsulting00-sketch/elearning-builder-4",
+    "install_url": null,
     "added_by": "admin",
-    "name_en": "eLearning Builder 4"
+    "name_en": "eLearning Builder 4",
+    "codes": [],
+    "links": [
+      {
+        "label": "קבצי הסקיל",
+        "url": "https://github.com/hbconsulting00-sketch/elearning-builder-4",
+        "icon": "download"
+      }
+    ],
+    "template_url": null
   },
   {
     "name": "מאתר סקילים",
@@ -229,9 +364,18 @@
     ],
     "has_guide": false,
     "guide_url": null,
-    "install_url": "https://github.com/hbconsulting00-sketch/hb-tools-hub/tree/main/skills/find-skills",
+    "install_url": null,
     "added_by": "admin",
-    "name_en": "find-skills"
+    "name_en": "find-skills",
+    "codes": [],
+    "links": [
+      {
+        "label": "קבצי הסקיל",
+        "url": "https://github.com/hbconsulting00-sketch/hb-tools-hub/tree/main/skills/find-skills",
+        "icon": "download"
+      }
+    ],
+    "template_url": null
   },
   {
     "name": "עיצוב ממשקים",
@@ -244,9 +388,18 @@
     ],
     "has_guide": false,
     "guide_url": null,
-    "install_url": "https://github.com/hbconsulting00-sketch/hb-tools-hub/tree/main/skills/frontend-design",
+    "install_url": null,
     "added_by": "admin",
-    "name_en": "frontend-design"
+    "name_en": "frontend-design",
+    "codes": [],
+    "links": [
+      {
+        "label": "קבצי הסקיל",
+        "url": "https://github.com/hbconsulting00-sketch/hb-tools-hub/tree/main/skills/frontend-design",
+        "icon": "download"
+      }
+    ],
+    "template_url": null
   },
   {
     "name": "מנטור UX",
@@ -259,24 +412,43 @@
     ],
     "has_guide": false,
     "guide_url": null,
-    "install_url": "https://github.com/hbconsulting00-sketch/hb-tools-hub/tree/main/skills/ux-design-mentor",
+    "install_url": null,
     "added_by": "admin",
-    "name_en": "ux-design-mentor"
+    "name_en": "ux-design-mentor",
+    "codes": [],
+    "links": [
+      {
+        "label": "קבצי הסקיל",
+        "url": "https://github.com/hbconsulting00-sketch/hb-tools-hub/tree/main/skills/ux-design-mentor",
+        "icon": "download"
+      }
+    ],
+    "template_url": null
   },
   {
     "name": "בונה משחקים קבוצתיים",
     "type": "skill",
     "description": "בונה משחק מולטיפלייר בסגנון קהוט מכל מצגת או נושא. כשרוצים להפוך הדרכה קיימת למשחק.",
     "access": "/multiplayer-games",
-    "access_note": "בפיתוח — הסקיל יהיה זמין בקרוב",
+    "access_note": null,
     "audience": [
       "studio"
     ],
     "has_guide": false,
     "guide_url": null,
-    "install_url": "https://github.com/hbconsulting00-sketch/hb-multiplayer-games",
+    "install_url": null,
     "added_by": "admin",
-    "name_en": "Multiplayer Games"
+    "name_en": "Multiplayer Games",
+    "install_notes": "הסקיל בפיתוח — יהיה זמין בקרוב",
+    "codes": [],
+    "links": [
+      {
+        "label": "קבצי הסקיל",
+        "url": "https://github.com/hbconsulting00-sketch/hb-multiplayer-games",
+        "icon": "download"
+      }
+    ],
+    "template_url": null
   },
   {
     "name": "מומחה QA",
@@ -291,7 +463,10 @@
     "guide_url": null,
     "install_url": null,
     "added_by": "admin",
-    "name_en": "QA Expert"
+    "name_en": "QA Expert",
+    "codes": [],
+    "links": [],
+    "template_url": null
   },
   {
     "name": "מתכנן משחקי בטיחות",
@@ -306,7 +481,10 @@
     "guide_url": null,
     "install_url": null,
     "added_by": "admin",
-    "name_en": "Safety Game Architect"
+    "name_en": "Safety Game Architect",
+    "codes": [],
+    "links": [],
+    "template_url": null
   },
   {
     "name": "המפיק — סרטוני AI",
@@ -321,7 +499,10 @@
     "guide_url": null,
     "install_url": null,
     "added_by": "admin",
-    "name_en": "AI Video Producer"
+    "name_en": "AI Video Producer",
+    "codes": [],
+    "links": [],
+    "template_url": null
   },
   {
     "name": "סוכן אפיון צרכים",
@@ -336,7 +517,10 @@
     "guide_url": null,
     "install_url": null,
     "added_by": "admin",
-    "name_en": "Requirements Agent"
+    "name_en": "Requirements Agent",
+    "codes": [],
+    "links": [],
+    "template_url": null
   },
   {
     "name": "מפיק לומדות",
@@ -351,7 +535,10 @@
     "guide_url": null,
     "install_url": null,
     "added_by": "admin",
-    "name_en": "eLearning Producer"
+    "name_en": "eLearning Producer",
+    "codes": [],
+    "links": [],
+    "template_url": null
   },
   {
     "name": "אסטרטג תוכן",
@@ -366,7 +553,10 @@
     "guide_url": null,
     "install_url": null,
     "added_by": "admin",
-    "name_en": "HB Content Strategist"
+    "name_en": "HB Content Strategist",
+    "codes": [],
+    "links": [],
+    "template_url": null
   },
   {
     "name": "טלפרומפטר",
@@ -381,7 +571,10 @@
     "guide_url": null,
     "install_url": null,
     "added_by": "admin",
-    "name_en": "Teleprompter"
+    "name_en": "Teleprompter",
+    "codes": [],
+    "links": [],
+    "template_url": null
   },
   {
     "name": "מתרגם מסמכים",
@@ -396,23 +589,34 @@
     "guide_url": null,
     "install_url": null,
     "added_by": "admin",
-    "name_en": "Document Translator"
+    "name_en": "Document Translator",
+    "codes": [],
+    "links": [],
+    "template_url": null
   },
   {
     "name": "מתקן כיווניות עברית",
     "type": "extension",
     "description": "תוסף כרום שמיישר טקסט עברי לימין בכל אתר, כולל Claude. כשהעברית יוצאת הפוכה.",
-    "access": "",
+    "access": "https://github.com/hbconsulting00-sketch/rtl-fixer-extension/raw/main/rtl-fixer-extension.zip",
     "access_note": null,
     "audience": [
       "studio"
     ],
     "has_guide": false,
     "guide_url": null,
-    "install_url": "https://github.com/hbconsulting00-sketch/rtl-fixer-extension",
-    "template_url": "https://github.com/hbconsulting00-sketch/rtl-fixer-extension/raw/main/rtl-fixer-extension.zip",
+    "install_url": null,
+    "template_url": null,
     "added_by": "admin",
-    "name_en": "Hebrew RTL Fixer"
+    "name_en": "Hebrew RTL Fixer",
+    "codes": [],
+    "links": [
+      {
+        "label": "קוד מקור",
+        "url": "https://github.com/hbconsulting00-sketch/rtl-fixer-extension",
+        "icon": "code"
+      }
+    ]
   },
   {
     "name": "נווט תקנות הבנייה 2026",
@@ -428,7 +632,9 @@
     "install_url": null,
     "template_url": null,
     "added_by": "admin",
-    "name_en": "Safety Navigator 2026 · Demo"
+    "name_en": "Safety Navigator 2026 · Demo",
+    "codes": [],
+    "links": []
   },
   {
     "name": "מערכת גיוס HR",
@@ -444,7 +650,9 @@
     "install_url": null,
     "template_url": null,
     "added_by": "admin",
-    "name_en": "HR Recruitment System"
+    "name_en": "HR Recruitment System",
+    "codes": [],
+    "links": []
   },
   {
     "name": "מפיק טבלאות תפעול",
@@ -460,7 +668,9 @@
     "install_url": null,
     "template_url": null,
     "added_by": "admin",
-    "name_en": "Operations Scheduler"
+    "name_en": "Operations Scheduler",
+    "codes": [],
+    "links": []
   },
   {
     "name": "ריוויו ללומדות",
@@ -476,23 +686,9 @@
     "install_url": null,
     "template_url": null,
     "added_by": "admin",
-    "name_en": "Review for e-learning"
-  },
-  {
-    "name": "סימולציית AI למודרכים",
-    "type": "tool",
-    "description": "",
-    "access": "https://share.gemini.google/AIoqGteGL4hK",
-    "access_note": null,
-    "audience": [
-      "games"
-    ],
-    "has_guide": false,
-    "guide_url": null,
-    "install_url": null,
-    "template_url": null,
-    "added_by": "admin",
-    "name_en": "AI Trainee Simulation"
+    "name_en": "Review for e-learning",
+    "codes": [],
+    "links": []
   },
   {
     "name": "דף הכלים לצוות",
@@ -509,7 +705,14 @@
     "template_url": null,
     "added_by": "admin",
     "name_en": "hb-tools-briefing",
-    "install_notes": "קישור למשובים: https://hb-tools-dashboard.vercel.app/"
+    "codes": [],
+    "links": [
+      {
+        "label": "דשבורד המשובים",
+        "url": "https://hb-tools-dashboard.vercel.app/",
+        "icon": "chart"
+      }
+    ]
   },
   {
     "name": "איסוף המלצות לקוחות",
@@ -526,24 +729,44 @@
     "install_url": null,
     "template_url": null,
     "added_by": "admin",
-    "name_en": "Testimonial Collector"
+    "name_en": "Testimonial Collector",
+    "codes": [],
+    "links": []
   },
   {
     "name": "אליאס בטיחות",
     "type": "tool",
     "description": "משחק אליאס בטיחות בקבוצות עם מסך מנחה דיגיטלי. לפתיחה או לסיום הדרכה, כשרוצים להרים אנרגיה.",
     "access": "https://safety-alias.vercel.app/",
-    "access_note": "HB-7Q8S-J68P",
+    "access_note": null,
     "audience": [
       "games",
       "news"
     ],
-    "has_guide": true,
-    "guide_url": "https://docs.google.com/document/d/1aPrC3oiD9kg27-7IgXel5dn57ElZ1IWUaDychUQxvg0/edit?usp=sharing",
-    "install_url": "https://drive.google.com/drive/folders/1l3-7Q8Wc7h6iK5xBkaTXwd2gib_3HWho?usp=sharing",
+    "has_guide": false,
+    "guide_url": null,
+    "install_url": null,
     "template_url": null,
     "added_by": "admin",
-    "name_en": "Safety Alias"
+    "name_en": "Safety Alias",
+    "codes": [
+      {
+        "label": "קוד כניסה",
+        "value": "HB-7Q8S-J68P"
+      }
+    ],
+    "links": [
+      {
+        "label": "מדריך שימוש",
+        "url": "https://docs.google.com/document/d/1aPrC3oiD9kg27-7IgXel5dn57ElZ1IWUaDychUQxvg0/edit?usp=sharing",
+        "icon": "book"
+      },
+      {
+        "label": "תיקייה בדרייב",
+        "url": "https://drive.google.com/drive/folders/1l3-7Q8Wc7h6iK5xBkaTXwd2gib_3HWho?usp=sharing",
+        "icon": "folder"
+      }
+    ]
   },
   {
     "name": "אתר הסטודיו",
@@ -560,7 +783,9 @@
     "install_url": null,
     "template_url": null,
     "added_by": "admin",
-    "name_en": "HB Studio Website"
+    "name_en": "HB Studio Website",
+    "codes": [],
+    "links": []
   },
   {
     "name": "גלגל הבטיחות",
@@ -572,12 +797,25 @@
       "games",
       "news"
     ],
-    "has_guide": true,
-    "guide_url": "https://claude.ai/artifact/MbNY44jJAAczzduapmGZ5y",
+    "has_guide": false,
+    "guide_url": null,
     "install_url": null,
-    "template_url": "https://drive.google.com/drive/folders/1Pf8-vX8UoeTObEU1P1ccLBmVCYe9RiSI?usp=drive_link",
+    "template_url": null,
     "added_by": "admin",
-    "name_en": "Safety Wheel"
+    "name_en": "Safety Wheel",
+    "codes": [],
+    "links": [
+      {
+        "label": "מדריך שימוש",
+        "url": "https://claude.ai/artifact/MbNY44jJAAczzduapmGZ5y",
+        "icon": "book"
+      },
+      {
+        "label": "תיקייה בדרייב",
+        "url": "https://drive.google.com/drive/folders/1Pf8-vX8UoeTObEU1P1ccLBmVCYe9RiSI?usp=drive_link",
+        "icon": "folder"
+      }
+    ]
   },
   {
     "name": "טופס הצהרת בעל מקצוע מתאים",
@@ -595,7 +833,15 @@
     "template_url": null,
     "added_by": "admin",
     "name_en": "Qualified Professional Declaration",
-    "install_notes": "למלא את הטופס\nלחתום בתחתית העמוד\nללחוץ על \"שמירה ושליחה\" — הקובץ נשמר אצלכם, ועותק נכנס לתיקיית הריכוז במשרד"
+    "install_notes": "למלא את הטופס\nלחתום בתחתית העמוד\nללחוץ על \"שמירה ושליחה\" — הקובץ נשמר אצלכם, ועותק נכנס לתיקיית הריכוז במשרד",
+    "codes": [],
+    "links": [
+      {
+        "label": "תיקיית הריכוז בדרייב",
+        "url": "https://drive.google.com/drive/folders/1WJQ9obndGtUb7-hfJpYbMGXQe9tJB1mC?usp=drive_link",
+        "icon": "folder"
+      }
+    ]
   },
   {
     "name": "מתרגם מצגות",
@@ -612,7 +858,9 @@
     "template_url": null,
     "install_notes": null,
     "added_by": "admin",
-    "name_en": "Presentation Translator"
+    "name_en": "Presentation Translator",
+    "codes": [],
+    "links": []
   },
   {
     "name": "סקיל מצגות HB",
@@ -630,7 +878,9 @@
     "template_url": null,
     "install_notes": "הורידי את תיקיית הסקיל מ-GitHub\nהעתיקי אותה לתוך ~\\.claude\\skills\\\nסגרי ופתחי מחדש Claude Code",
     "added_by": "admin",
-    "name_en": "HB Presentations Skill"
+    "name_en": "HB Presentations Skill",
+    "codes": [],
+    "links": []
   },
   {
     "name": "מצגות הצעת מחיר — לפי לקוח",
@@ -648,7 +898,9 @@
     "template_url": null,
     "install_notes": null,
     "added_by": "admin",
-    "name_en": "Client Proposal Decks"
+    "name_en": "Client Proposal Decks",
+    "codes": [],
+    "links": []
   },
   {
     "name": "משחק סימולציה לתרגול SDS",
@@ -660,12 +912,20 @@
       "games",
       "news"
     ],
-    "has_guide": true,
-    "guide_url": "https://claude.ai/artifact/TwTG3yaRbycoYnNBJa1FxR",
+    "has_guide": false,
+    "guide_url": null,
     "install_url": null,
     "template_url": null,
     "install_notes": null,
     "added_by": "admin",
-    "name_en": "SDS Simulation Game"
+    "name_en": "SDS Simulation Game",
+    "codes": [],
+    "links": [
+      {
+        "label": "מדריך שימוש",
+        "url": "https://claude.ai/artifact/TwTG3yaRbycoYnNBJa1FxR",
+        "icon": "book"
+      }
+    ]
   }
 ]

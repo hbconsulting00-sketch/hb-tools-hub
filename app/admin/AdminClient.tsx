@@ -5,6 +5,7 @@ import { Asset } from "@/components/AssetCard";
 import { TabConfig, ColorPreset, COLOR_PRESETS, PRESET_LABELS, PRESET_HEX, ALL_PRESETS } from "@/lib/tabPresets";
 import { AssetTypeConfig, TypeBehavior, BEHAVIORS, BEHAVIOR_LABELS, INSTALL_PRESETS, findType } from "@/lib/assetTypes";
 import { BrandIcon, ICONS, ICON_KEYS } from "@/lib/icons";
+import { LINK_PRESETS, iconForUrl, migrateLegacy } from "@/lib/assetLinks";
 
 // ── Types ─────────────────────────────────────────────────────────────
 interface SiteSettings {
@@ -33,7 +34,7 @@ function IconPicker({ value, onChange }: { value?: string; onChange: (icon: stri
 function emptyAsset(firstType: string): Asset {
   return { name: "", type: firstType, description: "", access: "", access_note: null,
     audience: [], has_guide: false, guide_url: null, install_url: null, template_url: null,
-    install_notes: null, added_by: "admin" };
+    install_notes: null, codes: [], links: [], added_by: "admin" };
 }
 function emptyTab(): TabConfig {
   return { key: "", label: "", emoji: "📌", icon: "layers", colorPreset: "sky", showAll: false };
@@ -90,7 +91,6 @@ export function AdminClient({
   const [assetForm, setAssetForm] = useState<Asset>(emptyAsset(initialTypes[0]?.key ?? "tool"));
   const [tabForm, setTabForm]     = useState<TabConfig>(emptyTab());
   const [typeForm, setTypeForm]   = useState<AssetTypeConfig>(emptyType());
-  const [showAdvanced, setShowAdvanced] = useState(false);
 
   // Save status
   const [saving, setSaving]   = useState(false);
@@ -148,11 +148,14 @@ export function AdminClient({
   // ── Asset form ────────────────────────────────────────────────────
   function openAssetAdd() {
     setAssetForm(emptyAsset(types[0]?.key ?? "tool"));
-    setShowAdvanced(false); setEditingIndex(-1); setFormTarget("asset");
+    setEditingIndex(-1); setFormTarget("asset");
   }
   function openAssetEdit(i: number) {
-    setAssetForm({ ...assets[i] });
-    setShowAdvanced(!!(assets[i].install_url || assets[i].template_url));
+    // Old guide/install/source/password fields open as rows in the new lists.
+    const a = assets[i];
+    const t = findType(types, a.type);
+    const target = a.access?.trim() || (t.behavior === "download" ? a.template_url?.trim() ?? "" : "");
+    setAssetForm(migrateLegacy({ ...a }, target));
     setEditingIndex(i); setFormTarget("asset");
   }
   function closeForm() { setEditingIndex(-2); }
@@ -509,11 +512,6 @@ export function AdminClient({
             </div>
 
             <div>
-              <label className="admin-label">הערת גישה / סיסמה</label>
-              <input value={assetForm.access_note ?? ""} onChange={(e) => updateAsset("access_note", e.target.value||null)} className="admin-input w-full" placeholder="סיסמה: HB@..." />
-            </div>
-
-            <div>
               <label className="admin-label">קהל יעד *</label>
               <div className="flex gap-2 flex-wrap">
                 {audienceOptions.map((a) => (
@@ -526,28 +524,66 @@ export function AdminClient({
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
-              <button onClick={() => { updateAsset("has_guide", !assetForm.has_guide); if(assetForm.has_guide) updateAsset("guide_url",null); }}
-                className="w-10 h-5 rounded-full relative shrink-0 transition-all"
-                style={{ background: assetForm.has_guide ? "#6366f1":"var(--toggle-off)", border:"1px solid var(--toggle-border)" }}>
-                <span className="absolute top-0.5 w-4 h-4 rounded-full bg-white transition-all"
-                  style={{ right: assetForm.has_guide ? "2px":"auto", left: assetForm.has_guide ? "auto":"2px" }} />
-              </button>
-              <span className="text-sm" style={{ color:"var(--page-text)" }}>יש מדריך שימוש</span>
-            </div>
-            {assetForm.has_guide && (
-              <div>
-                <label className="admin-label">קישור למדריך</label>
-                <input value={assetForm.guide_url ?? ""} onChange={(e) => updateAsset("guide_url", e.target.value||null)} className="admin-input w-full" placeholder="https://youtu.be/..." dir="ltr" />
-                {!assetForm.guide_url && (
-                  <p className="text-xs mt-1" style={{ color:"var(--text-muted)" }}>בלי קישור — כפתור המדריך לא יופיע בכרטיס</p>
-                )}
+            {/* Codes & passwords — each shows with a copy button */}
+            <div>
+              <label className="admin-label">סיסמאות וקודים</label>
+              <div className="space-y-2">
+                {(assetForm.codes ?? []).map((c, i) => (
+                  <div key={i} className="flex gap-2">
+                    <input value={c.label} placeholder="סיסמה / קוד חברה X" className="admin-input w-36 shrink-0"
+                      onChange={(e) => updateAsset("codes", (assetForm.codes ?? []).map((x, j) => j === i ? { ...x, label: e.target.value } : x))} />
+                    <input value={c.value} placeholder="HB-1234" dir="ltr" className="admin-input flex-1 min-w-0"
+                      onChange={(e) => updateAsset("codes", (assetForm.codes ?? []).map((x, j) => j === i ? { ...x, value: e.target.value } : x))} />
+                    <button onClick={() => updateAsset("codes", (assetForm.codes ?? []).filter((_, j) => j !== i))}
+                      className="px-3 rounded-lg text-xs border" style={{ borderColor:"rgba(239,68,68,0.3)", color:"#ef4444" }}>✕</button>
+                  </div>
+                ))}
+                <button onClick={() => updateAsset("codes", [...(assetForm.codes ?? []), { label: "סיסמה", value: "" }])}
+                  className="text-xs font-semibold" style={{ color: "var(--accent)" }}>+ הוספת סיסמה / קוד</button>
               </div>
-            )}
+            </div>
+
+            {/* Links — guide, Drive folder, source… each one row on the card */}
+            <div>
+              <label className="admin-label">קישורים נוספים בכרטיס</label>
+              <div className="space-y-3">
+                {(assetForm.links ?? []).map((l, i) => {
+                  const set = (patch: Partial<typeof l>) =>
+                    updateAsset("links", (assetForm.links ?? []).map((x, j) => j === i ? { ...x, ...patch } : x));
+                  return (
+                    <div key={i} className="rounded-xl p-3 space-y-2" style={{ background: "var(--well-bg)", border: "1px solid var(--well-border)" }}>
+                      <div className="flex gap-2">
+                        <select value={l.icon ?? ""} onChange={(e) => set({ icon: e.target.value || undefined })}
+                          className="admin-input w-28 shrink-0" aria-label="אייקון">
+                          {["book","video","folder","file-text","download","code","chart","globe","link"].map((k) => (
+                            <option key={k} value={k}>{ICONS[k].label}</option>
+                          ))}
+                        </select>
+                        <input value={l.label} onChange={(e) => set({ label: e.target.value })} placeholder="מה זה? (תיקיית התשובות בדרייב)"
+                          className="admin-input flex-1 min-w-0" />
+                        <button onClick={() => updateAsset("links", (assetForm.links ?? []).filter((_, j) => j !== i))}
+                          className="px-3 rounded-lg text-xs border" style={{ borderColor:"rgba(239,68,68,0.3)", color:"#ef4444" }}>✕</button>
+                      </div>
+                      <input value={l.url} dir="ltr" placeholder="https://..." className="admin-input w-full"
+                        onChange={(e) => set({ url: e.target.value, ...(l.icon ? {} : { icon: iconForUrl(e.target.value) }) })} />
+                    </div>
+                  );
+                })}
+                <div className="flex gap-1.5 flex-wrap">
+                  {LINK_PRESETS.map((p) => (
+                    <button key={p.label} onClick={() => updateAsset("links", [...(assetForm.links ?? []), { label: p.label, icon: p.icon, url: "" }])}
+                      className="text-xs px-2.5 py-1 rounded-lg border inline-flex items-center gap-1"
+                      style={{ borderColor:"var(--card-border)", color:"var(--text-sec)" }}>
+                      <BrandIcon icon={p.icon} size={12} /> + {p.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
 
             {/* Install instructions — optional, free text */}
             <div>
-              <label className="admin-label">הוראות התקנה (אופציונלי)</label>
+              <label className="admin-label">הוראות שימוש / התקנה (אופציונלי)</label>
               <textarea value={assetForm.install_notes ?? ""} onChange={(e) => updateAsset("install_notes", e.target.value||null)}
                 rows={4} className="admin-input w-full" style={{ resize:"vertical" }}
                 placeholder={"שורה אחת לכל שלב.\nאם תשאירי ריק — לא יופיעו הוראות בכרטיס."} />
@@ -567,30 +603,6 @@ export function AdminClient({
                   </button>
                 )}
               </div>
-            </div>
-
-            {/* Advanced — GitHub links, almost always empty */}
-            <div>
-              <button onClick={() => setShowAdvanced((v) => !v)}
-                className="text-xs font-semibold flex items-center gap-1.5" style={{ color:"var(--text-sec)" }}>
-                <span>{showAdvanced ? "▾" : "◂"}</span>
-                <span>קישורי גיטהאב (אופציונלי)</span>
-              </button>
-              {showAdvanced && (
-                <div className="space-y-4 mt-3 pr-3" style={{ borderRight: "2px solid var(--card-border)" }}>
-                  <div>
-                    <label className="admin-label">קובץ התקנה להורדה</label>
-                    <input value={assetForm.install_url ?? ""} onChange={(e) => updateAsset("install_url", e.target.value||null)} className="admin-input w-full" placeholder="https://github.com/..." dir="ltr" />
-                  </div>
-                  <div>
-                    <label className="admin-label">קוד מקור / תבנית — מוצג רק בטאב סטודיו</label>
-                    <input value={assetForm.template_url ?? ""} onChange={(e) => updateAsset("template_url", e.target.value||null)} className="admin-input w-full" placeholder="https://github.com/..." dir="ltr" />
-                  </div>
-                  <p className="text-xs" style={{ color:"var(--text-muted)" }}>
-                    שדות ריקים פשוט לא מופיעים בכרטיס.
-                  </p>
-                </div>
-              )}
             </div>
 
             <div className="flex gap-3 pt-1">
