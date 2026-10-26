@@ -24,17 +24,27 @@ interface LinkSource {
   codes?: AssetCode[] | null;
 }
 
-/** Ready-made link kinds for the admin panel: picking one fills label + icon. */
-export const LINK_PRESETS: { label: string; icon: string }[] = [
-  { label: "מדריך שימוש",      icon: "book" },
-  { label: "סרטון הדרכה",      icon: "video" },
-  { label: "תיקייה בדרייב",    icon: "folder" },
-  { label: "תשובות הטופס",     icon: "folder" },
-  { label: "קובץ להורדה",      icon: "download" },
-  { label: "קוד מקור",         icon: "code" },
-  { label: "דשבורד",           icon: "chart" },
-  { label: "אתר",              icon: "globe" },
+/**
+ * The building blocks the admin panel offers for a card. Picking one adds an
+ * empty row of that kind; the card shows it once it's filled in.
+ */
+export const CARD_COMPONENTS: { kind: "code" | "link" | "steps"; label: string; icon: string }[] = [
+  { kind: "code",  label: "סיסמה",          icon: "key" },
+  { kind: "code",  label: "קוד כניסה",      icon: "key" },
+  { kind: "link",  label: "מדריך שימוש",    icon: "book" },
+  { kind: "link",  label: "סרטון הדרכה",    icon: "video" },
+  { kind: "link",  label: "תיקייה בדרייב",  icon: "folder" },
+  { kind: "link",  label: "תשובות הטופס",   icon: "folder" },
+  { kind: "link",  label: "קובץ להורדה",    icon: "download" },
+  { kind: "link",  label: "קוד מקור",       icon: "code" },
+  { kind: "link",  label: "דשבורד",         icon: "chart" },
+  { kind: "link",  label: "אתר",            icon: "globe" },
+  { kind: "link",  label: "קישור אחר",      icon: "link" },
+  { kind: "steps", label: "הוראות שימוש",   icon: "clipboard" },
 ];
+
+/** Icons a link row can wear. */
+export const LINK_ICON_KEYS = ["book", "video", "folder", "file-text", "download", "code", "chart", "globe", "link"];
 
 /** Guess an icon from the URL when none was picked. */
 export function iconForUrl(url: string): string {

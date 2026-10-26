@@ -1,11 +1,11 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Asset } from "@/components/AssetCard";
+import { Asset, AssetCard } from "@/components/AssetCard";
 import { TabConfig, ColorPreset, COLOR_PRESETS, PRESET_LABELS, PRESET_HEX, ALL_PRESETS } from "@/lib/tabPresets";
 import { AssetTypeConfig, TypeBehavior, BEHAVIORS, BEHAVIOR_LABELS, INSTALL_PRESETS, findType } from "@/lib/assetTypes";
 import { BrandIcon, ICONS, ICON_KEYS } from "@/lib/icons";
-import { LINK_PRESETS, iconForUrl, migrateLegacy } from "@/lib/assetLinks";
+import { CARD_COMPONENTS, LINK_ICON_KEYS, iconForUrl, migrateLegacy } from "@/lib/assetLinks";
 
 // ── Types ─────────────────────────────────────────────────────────────
 interface SiteSettings {
@@ -161,8 +161,16 @@ export function AdminClient({
   function closeForm() { setEditingIndex(-2); }
 
   function commitAsset() {
+    // Rows left empty are dropped, so a half-added component never reaches the site.
+    const steps = assetForm.install_notes?.trim();
+    const clean: Asset = {
+      ...assetForm,
+      codes: (assetForm.codes ?? []).filter((c) => c.value.trim() !== ""),
+      links: (assetForm.links ?? []).filter((l) => l.url.trim() !== ""),
+      install_notes: steps ? steps : null,
+    };
     const updated = [...assets];
-    if (editingIndex === -1) { updated.push(assetForm); } else { updated[editingIndex] = assetForm; }
+    if (editingIndex === -1) { updated.push(clean); } else { updated[editingIndex] = clean; }
     setAssets(updated); markDirty("assets"); closeForm();
   }
 
@@ -457,28 +465,66 @@ export function AdminClient({
     // ── Asset form ──
     const canSave = assetForm.name.trim() !== "" && assetForm.audience.length > 0;
     const activeType = findType(types, assetForm.type);
+    const codes = assetForm.codes ?? [];
+    const links = assetForm.links ?? [];
+    const hasSteps = assetForm.install_notes !== null && assetForm.install_notes !== undefined;
+    const setCodes = (next: typeof codes) => updateAsset("codes", next);
+    const setLinks = (next: typeof links) => updateAsset("links", next);
+    const moveLink = (i: number, dir: -1 | 1) => {
+      const j = i + dir; if (j < 0 || j >= links.length) return;
+      const next = [...links]; [next[i], next[j]] = [next[j], next[i]]; setLinks(next);
+    };
+    function addComponent(c: (typeof CARD_COMPONENTS)[number]) {
+      if (c.kind === "code")  setCodes([...codes, { label: c.label, value: "" }]);
+      if (c.kind === "link")  setLinks([...links, { label: c.label, icon: c.icon, url: "" }]);
+      if (c.kind === "steps" && !hasSteps) updateAsset("install_notes", "");
+    }
+    const removeBtn = (onClick: () => void) => (
+      <button onClick={onClick} title="הסר" className="w-8 h-8 shrink-0 rounded-lg text-xs border"
+        style={{ borderColor:"rgba(239,68,68,0.3)", color:"#ef4444" }}>✕</button>
+    );
+    const blockStyle = { background: "var(--well-bg)", border: "1px solid var(--well-border)" };
     return (
       <div className="min-h-screen" style={{ background: "var(--bg-color)" }}>
-        <div className="max-w-2xl mx-auto px-6 py-8">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
           <button onClick={closeForm} className="text-sm mb-5 block" style={{ color:"var(--text-sec)" }}>← חזרה</button>
           <h2 className="text-lg font-bold mb-5" style={{ color:"var(--page-text)" }}>
             {isNew ? "כלי חדש" : `עריכה: ${assets[editingIndex]?.name}`}
           </h2>
+
+          <div className="grid lg:grid-cols-[1fr_360px] gap-6 items-start">
+          <div className="space-y-5">
+
+          {/* ── 1. Basics ── */}
           <div className="card-glass rounded-2xl p-6 space-y-5">
-            <div>
-              <label className="admin-label">שם בעברית *</label>
-              <input value={assetForm.name} onChange={(e) => updateAsset("name", e.target.value)} className="admin-input w-full" placeholder="מרכז משחקי הבטיחות" />
+            <p className="text-sm font-bold" style={{ color:"var(--page-text)" }}>1 · פרטי הכלי</p>
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div>
+                <label className="admin-label">שם בעברית *</label>
+                <input value={assetForm.name} onChange={(e) => updateAsset("name", e.target.value)} className="admin-input w-full" placeholder="מרכז משחקי הבטיחות" />
+              </div>
+              <div>
+                <label className="admin-label">שם באנגלית — מתחת לשם העברי</label>
+                <input value={assetForm.name_en ?? ""} onChange={(e) => updateAsset("name_en", e.target.value || null)}
+                  className="admin-input w-full" placeholder="Safe Play Hub" dir="ltr" />
+              </div>
             </div>
+
             <div>
-              <label className="admin-label">שם באנגלית — מוצג מתחת לשם העברי</label>
-              <input value={assetForm.name_en ?? ""} onChange={(e) => updateAsset("name_en", e.target.value || null)}
-                className="admin-input w-full" placeholder="Safe Play Hub" dir="ltr" />
+              <label className="admin-label">
+                תיאור — מה זה עושה + מתי משתמשים
+                <span className="mr-2" style={{ color: assetForm.description.length > 120 ? "#ef4444" : "var(--text-muted)" }}>
+                  {assetForm.description.length}/120
+                </span>
+              </label>
+              <textarea value={assetForm.description} onChange={(e) => updateAsset("description", e.target.value)}
+                rows={2} className="admin-input w-full" style={{ resize:"none" }} placeholder="תיאור קצר..." />
             </div>
 
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <label className="admin-label" style={{ marginBottom: 0 }}>סוג</label>
-                <button onClick={() => { openTypeAdd(); }} className="text-xs font-semibold" style={{ color: "#6366f1" }}>
+                <label className="admin-label" style={{ marginBottom: 0 }}>סוג — קובע את הכפתור הראשי</label>
+                <button onClick={() => { openTypeAdd(); }} className="text-xs font-semibold" style={{ color: "var(--accent)" }}>
                   + סוג חדש
                 </button>
               </div>
@@ -487,7 +533,7 @@ export function AdminClient({
                   <button key={t.key} onClick={() => updateAsset("type", t.key)}
                     className="px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all inline-flex items-center gap-1"
                     style={assetForm.type === t.key
-                      ? { background: PRESET_HEX[t.colorPreset], borderColor: PRESET_HEX[t.colorPreset], color:"#fff" }
+                      ? { background: "var(--grad-brand)", borderColor: "transparent", color:"#fff" }
                       : { background:"transparent", borderColor:"var(--card-border)", color:"var(--text-sec)" }}>
                     <BrandIcon icon={t.icon} emoji={t.emoji} size={13} /><span>{t.label}</span>
                   </button>
@@ -496,124 +542,140 @@ export function AdminClient({
             </div>
 
             <div>
-              <label className="admin-label">תיאור</label>
-              <textarea value={assetForm.description} onChange={(e) => updateAsset("description", e.target.value)}
-                rows={2} className="admin-input w-full" style={{ resize:"none" }} placeholder="תיאור קצר..." />
-            </div>
-
-            <div>
               <label className="admin-label">
-                {activeType.behavior === "command" ? "הפקודה ב-Claude Code"
-                  : activeType.behavior === "download" ? "קישור להורדת הקובץ"
-                  : "קישור גישה (URL)"}
+                {activeType.behavior === "command" ? "הפקודה ב-Claude Code (הכפתור הראשי)"
+                  : activeType.behavior === "download" ? "קישור להורדת הקובץ (הכפתור הראשי)"
+                  : `קישור לכפתור "${activeType.btnLabel}" (הכפתור הראשי)`}
               </label>
               <input value={assetForm.access} onChange={(e) => updateAsset("access", e.target.value)} className="admin-input w-full"
                 placeholder={activeType.behavior === "command" ? "/elearning" : "https://..."} dir="ltr" />
             </div>
 
             <div>
-              <label className="admin-label">קהל יעד *</label>
+              <label className="admin-label">באילו כרטיסיות מופיע *</label>
               <div className="flex gap-2 flex-wrap">
                 {audienceOptions.map((a) => (
                   <button key={a.key} onClick={() => toggleAudience(a.key)}
-                    className="px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all"
-                    style={assetForm.audience.includes(a.key) ? { background:"#6366f1", borderColor:"#6366f1", color:"#fff" } : { background:"transparent", borderColor:"var(--card-border)", color:"var(--text-sec)" }}>
-                    <BrandIcon icon={a.icon} emoji={a.emoji} size={12} className="inline -mt-0.5" /> {a.label}
+                    className="px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all inline-flex items-center gap-1"
+                    style={assetForm.audience.includes(a.key)
+                      ? { background:"var(--grad-brand)", borderColor:"transparent", color:"#fff" }
+                      : { background:"transparent", borderColor:"var(--card-border)", color:"var(--text-sec)" }}>
+                    <BrandIcon icon={a.icon} emoji={a.emoji} size={12} /> {a.label}
                   </button>
                 ))}
               </div>
             </div>
+          </div>
 
-            {/* Codes & passwords — each shows with a copy button */}
+          {/* ── 2. Components ── */}
+          <div className="card-glass rounded-2xl p-6 space-y-4">
             <div>
-              <label className="admin-label">סיסמאות וקודים</label>
-              <div className="space-y-2">
-                {(assetForm.codes ?? []).map((c, i) => (
-                  <div key={i} className="flex gap-2">
-                    <input value={c.label} placeholder="סיסמה / קוד חברה X" className="admin-input w-36 shrink-0"
-                      onChange={(e) => updateAsset("codes", (assetForm.codes ?? []).map((x, j) => j === i ? { ...x, label: e.target.value } : x))} />
-                    <input value={c.value} placeholder="HB-1234" dir="ltr" className="admin-input flex-1 min-w-0"
-                      onChange={(e) => updateAsset("codes", (assetForm.codes ?? []).map((x, j) => j === i ? { ...x, value: e.target.value } : x))} />
-                    <button onClick={() => updateAsset("codes", (assetForm.codes ?? []).filter((_, j) => j !== i))}
-                      className="px-3 rounded-lg text-xs border" style={{ borderColor:"rgba(239,68,68,0.3)", color:"#ef4444" }}>✕</button>
-                  </div>
-                ))}
-                <button onClick={() => updateAsset("codes", [...(assetForm.codes ?? []), { label: "סיסמה", value: "" }])}
-                  className="text-xs font-semibold" style={{ color: "var(--accent)" }}>+ הוספת סיסמה / קוד</button>
-              </div>
+              <p className="text-sm font-bold" style={{ color:"var(--page-text)" }}>2 · רכיבים בכרטיס</p>
+              <p className="text-xs mt-1" style={{ color:"var(--text-muted)" }}>
+                לוחצים על רכיב כדי להוסיף אותו, ממלאים — והכרטיס מתעצב לבד. רכיב שנשאר ריק לא יופיע.
+              </p>
+            </div>
+            <div className="flex gap-1.5 flex-wrap">
+              {CARD_COMPONENTS.map((c) => (
+                <button key={c.label} onClick={() => addComponent(c)}
+                  disabled={c.kind === "steps" && hasSteps}
+                  className="text-xs px-2.5 py-1.5 rounded-lg border inline-flex items-center gap-1.5 transition-all"
+                  style={{ borderColor:"var(--card-border)", color:"var(--text-sec)", background:"var(--ghost-bg)",
+                           opacity: c.kind === "steps" && hasSteps ? 0.4 : 1 }}>
+                  <BrandIcon icon={c.icon} size={13} /> + {c.label}
+                </button>
+              ))}
             </div>
 
-            {/* Links — guide, Drive folder, source… each one row on the card */}
-            <div>
-              <label className="admin-label">קישורים נוספים בכרטיס</label>
-              <div className="space-y-3">
-                {(assetForm.links ?? []).map((l, i) => {
-                  const set = (patch: Partial<typeof l>) =>
-                    updateAsset("links", (assetForm.links ?? []).map((x, j) => j === i ? { ...x, ...patch } : x));
-                  return (
-                    <div key={i} className="rounded-xl p-3 space-y-2" style={{ background: "var(--well-bg)", border: "1px solid var(--well-border)" }}>
-                      <div className="flex gap-2">
-                        <select value={l.icon ?? ""} onChange={(e) => set({ icon: e.target.value || undefined })}
-                          className="admin-input w-28 shrink-0" aria-label="אייקון">
-                          {["book","video","folder","file-text","download","code","chart","globe","link"].map((k) => (
-                            <option key={k} value={k}>{ICONS[k].label}</option>
-                          ))}
-                        </select>
-                        <input value={l.label} onChange={(e) => set({ label: e.target.value })} placeholder="מה זה? (תיקיית התשובות בדרייב)"
-                          className="admin-input flex-1 min-w-0" />
-                        <button onClick={() => updateAsset("links", (assetForm.links ?? []).filter((_, j) => j !== i))}
-                          className="px-3 rounded-lg text-xs border" style={{ borderColor:"rgba(239,68,68,0.3)", color:"#ef4444" }}>✕</button>
-                      </div>
-                      <input value={l.url} dir="ltr" placeholder="https://..." className="admin-input w-full"
-                        onChange={(e) => set({ url: e.target.value, ...(l.icon ? {} : { icon: iconForUrl(e.target.value) }) })} />
+            {codes.length + links.length === 0 && !hasSteps && (
+              <p className="text-xs text-center py-4 rounded-xl" style={{ ...blockStyle, color:"var(--text-muted)" }}>
+                עדיין אין רכיבים — הכרטיס יציג רק תיאור וכפתור ראשי
+              </p>
+            )}
+
+            {/* Codes */}
+            {codes.map((c, i) => (
+              <div key={`c${i}`} className="rounded-xl p-3 flex gap-2 items-center" style={blockStyle}>
+                <span className="icon-ring shrink-0"><BrandIcon icon="key" size={14} /></span>
+                <input value={c.label} placeholder="סיסמה / קוד חברה X" className="admin-input w-40 shrink-0"
+                  onChange={(e) => setCodes(codes.map((x, j) => j === i ? { ...x, label: e.target.value } : x))} />
+                <input value={c.value} placeholder="HB-1234" dir="ltr" className="admin-input flex-1 min-w-0"
+                  onChange={(e) => setCodes(codes.map((x, j) => j === i ? { ...x, value: e.target.value } : x))} />
+                {removeBtn(() => setCodes(codes.filter((_, j) => j !== i)))}
+              </div>
+            ))}
+
+            {/* Links */}
+            {links.map((l, i) => {
+              const set = (patch: Partial<typeof l>) => setLinks(links.map((x, j) => j === i ? { ...x, ...patch } : x));
+              return (
+                <div key={`l${i}`} className="rounded-xl p-3 space-y-2" style={blockStyle}>
+                  <div className="flex gap-2 items-center">
+                    <select value={l.icon ?? "link"} onChange={(e) => set({ icon: e.target.value })}
+                      className="admin-input w-28 shrink-0" aria-label="אייקון">
+                      {LINK_ICON_KEYS.map((k) => <option key={k} value={k}>{ICONS[k].label}</option>)}
+                    </select>
+                    <input value={l.label} onChange={(e) => set({ label: e.target.value })} placeholder="מה זה? (תיקיית התשובות בדרייב)"
+                      className="admin-input flex-1 min-w-0" />
+                    <div className="flex flex-col gap-0.5 shrink-0">
+                      <button onClick={() => moveLink(i, -1)} disabled={i === 0} className="w-6 h-4 text-[10px] rounded"
+                        style={{ background:"var(--copy-bg)", color:"var(--text-sec)", opacity: i === 0 ? 0.3 : 1 }}>↑</button>
+                      <button onClick={() => moveLink(i, 1)} disabled={i === links.length - 1} className="w-6 h-4 text-[10px] rounded"
+                        style={{ background:"var(--copy-bg)", color:"var(--text-sec)", opacity: i === links.length - 1 ? 0.3 : 1 }}>↓</button>
                     </div>
-                  );
-                })}
-                <div className="flex gap-1.5 flex-wrap">
-                  {LINK_PRESETS.map((p) => (
-                    <button key={p.label} onClick={() => updateAsset("links", [...(assetForm.links ?? []), { label: p.label, icon: p.icon, url: "" }])}
-                      className="text-xs px-2.5 py-1 rounded-lg border inline-flex items-center gap-1"
-                      style={{ borderColor:"var(--card-border)", color:"var(--text-sec)" }}>
-                      <BrandIcon icon={p.icon} size={12} /> + {p.label}
+                    {removeBtn(() => setLinks(links.filter((_, j) => j !== i)))}
+                  </div>
+                  <input value={l.url} dir="ltr" placeholder="https://..." className="admin-input w-full"
+                    onChange={(e) => set({ url: e.target.value, ...(l.icon && l.icon !== "link" ? {} : { icon: iconForUrl(e.target.value) }) })} />
+                </div>
+              );
+            })}
+
+            {/* Steps */}
+            {hasSteps && (
+              <div className="rounded-xl p-3 space-y-2" style={blockStyle}>
+                <div className="flex items-center gap-2">
+                  <span className="icon-ring shrink-0"><BrandIcon icon="clipboard" size={14} /></span>
+                  <span className="text-sm font-semibold flex-1" style={{ color:"var(--page-text)" }}>הוראות שימוש — שורה לכל שלב</span>
+                  {removeBtn(() => updateAsset("install_notes", null))}
+                </div>
+                <textarea value={assetForm.install_notes ?? ""} onChange={(e) => updateAsset("install_notes", e.target.value)}
+                  rows={4} className="admin-input w-full" style={{ resize:"vertical" }} placeholder={"למלא את הטופס\nלחתום בתחתית\nללחוץ על שליחה"} />
+                <div className="flex gap-2 flex-wrap">
+                  {INSTALL_PRESETS.map((p) => (
+                    <button key={p.label} onClick={() => updateAsset("install_notes", p.text)}
+                      className="text-xs px-2.5 py-1 rounded-lg border" style={{ borderColor:"var(--card-border)", color:"var(--text-sec)" }}>
+                      הדבק: {p.label}
                     </button>
                   ))}
                 </div>
               </div>
-            </div>
+            )}
+          </div>
 
-            {/* Install instructions — optional, free text */}
-            <div>
-              <label className="admin-label">הוראות שימוש / התקנה (אופציונלי)</label>
-              <textarea value={assetForm.install_notes ?? ""} onChange={(e) => updateAsset("install_notes", e.target.value||null)}
-                rows={4} className="admin-input w-full" style={{ resize:"vertical" }}
-                placeholder={"שורה אחת לכל שלב.\nאם תשאירי ריק — לא יופיעו הוראות בכרטיס."} />
-              <div className="flex gap-2 flex-wrap mt-2">
-                {INSTALL_PRESETS.map((p) => (
-                  <button key={p.label} onClick={() => updateAsset("install_notes", p.text)}
-                    className="text-xs px-2.5 py-1 rounded-lg border"
-                    style={{ borderColor:"var(--card-border)", color:"var(--text-sec)" }}>
-                    הדבק: {p.label}
-                  </button>
-                ))}
-                {assetForm.install_notes && (
-                  <button onClick={() => updateAsset("install_notes", null)}
-                    className="text-xs px-2.5 py-1 rounded-lg border"
-                    style={{ borderColor:"rgba(239,68,68,0.3)", color:"#ef4444" }}>
-                    נקה
-                  </button>
-                )}
-              </div>
-            </div>
+          <div className="flex gap-3">
+            <button onClick={commitAsset} disabled={!canSave}
+              className="btn-brand flex-1 py-2.5 rounded-xl font-bold text-sm"
+              style={{ opacity:canSave?1:0.5, cursor:canSave?"pointer":"not-allowed" }}>
+              {isNew ? "הוסף כלי" : "שמור"}
+            </button>
+            <button onClick={closeForm} className="px-5 py-2.5 rounded-xl text-sm font-semibold border"
+              style={{ borderColor:"var(--card-border)", color:"var(--text-sec)", cursor:"pointer" }}>ביטול</button>
+          </div>
+          {!canSave && (
+            <p className="text-xs" style={{ color:"var(--text-muted)" }}>כדי לשמור צריך שם בעברית ולפחות כרטיסייה אחת.</p>
+          )}
+          </div>
 
-            <div className="flex gap-3 pt-1">
-              <button onClick={commitAsset} disabled={!canSave}
-                className="flex-1 py-2.5 rounded-xl font-bold text-sm text-white"
-                style={{ background:"linear-gradient(135deg,#6366f1,#8b5cf6)", opacity:canSave?1:0.5, cursor:canSave?"pointer":"not-allowed" }}>
-                {isNew ? "הוסף כלי" : "שמור"}
-              </button>
-              <button onClick={closeForm} className="px-5 py-2.5 rounded-xl text-sm font-semibold border"
-                style={{ borderColor:"var(--card-border)", color:"var(--text-sec)", cursor:"pointer" }}>ביטול</button>
-            </div>
+          {/* ── Live preview — the real card, exactly as it will look ── */}
+          <div className="lg:sticky lg:top-6 space-y-2">
+            <p className="text-xs font-bold" style={{ color:"var(--text-muted)" }}>תצוגה מקדימה — כך ייראה הכרטיס באתר</p>
+            <AssetCard
+              asset={{ ...assetForm, name: assetForm.name || "שם הכלי", description: assetForm.description || "תיאור הכלי יופיע כאן" }}
+              types={types}
+              tabs={tabs}
+            />
+          </div>
           </div>
         </div>
       </div>
