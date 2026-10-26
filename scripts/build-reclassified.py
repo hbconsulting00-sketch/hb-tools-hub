@@ -152,13 +152,13 @@ for n, a in enumerate(backup["assets"], 1):
     assets.append(a)
 
 tabs = [
+    {"key": "news",          "label": "מה חדש",             "emoji": "🆕", "icon": "sparkles",     "colorPreset": "violet", "showAll": False},
     {"key": "games",         "label": "משחק ופעילות",       "emoji": "🎮", "icon": "gamepad",      "colorPreset": "violet", "showAll": False},
     {"key": "documents",     "label": "מסמכים וסיכומים",    "emoji": "📄", "icon": "file-text",    "colorPreset": "blue",   "showAll": False},
     {"key": "presentations", "label": "מצגות ולומדות",      "emoji": "🎬", "icon": "presentation", "colorPreset": "purple", "showAll": False},
     {"key": "operations",    "label": "ניהול ומעקב",        "emoji": "⚙️", "icon": "chart",        "colorPreset": "sky",    "showAll": False},
     {"key": "marketing",     "label": "שיווק ומכירות",      "emoji": "🏷", "icon": "megaphone",    "colorPreset": "amber",  "showAll": False},
     {"key": "studio",        "label": "עזרי עבודה וסטודיו", "emoji": "🧱", "icon": "wrench",       "colorPreset": "indigo", "showAll": False},
-    {"key": "news",          "label": "מה חדש",             "emoji": "🆕", "icon": "sparkles",     "colorPreset": "violet", "showAll": False},
 ]
 
 TYPE_ICONS = {"tool": "toolbox", "tools": "smartphone", "website": "globe", "form": "clipboard",

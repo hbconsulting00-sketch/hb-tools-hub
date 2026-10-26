@@ -1,5 +1,13 @@
 [
   {
+    "key": "news",
+    "label": "מה חדש",
+    "emoji": "🆕",
+    "icon": "sparkles",
+    "colorPreset": "violet",
+    "showAll": false
+  },
+  {
     "key": "games",
     "label": "משחק ופעילות",
     "emoji": "🎮",
@@ -45,14 +53,6 @@
     "emoji": "🧱",
     "icon": "wrench",
     "colorPreset": "indigo",
-    "showAll": false
-  },
-  {
-    "key": "news",
-    "label": "מה חדש",
-    "emoji": "🆕",
-    "icon": "sparkles",
-    "colorPreset": "violet",
     "showAll": false
   }
 ]

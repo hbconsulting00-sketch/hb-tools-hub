@@ -1,6 +1,6 @@
 import { AssetCard, Asset } from "@/components/AssetCard";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { TabConfig } from "@/lib/tabPresets";
+import { TabConfig, featuredKey, orderTabs } from "@/lib/tabPresets";
 import { BrandIcon } from "@/lib/icons";
 import { AssetTypeConfig } from "@/lib/assetTypes";
 import assetsDefault from "@/data/assets.json";
@@ -19,10 +19,11 @@ export default async function Home({
   const params = await searchParams;
 
   const assets   = (await redisGet<Asset[]>("assets"))           ?? (assetsDefault as Asset[]);
-  const tabs     = (await redisGet<TabConfig[]>("tabs"))         ?? (tabsDefault   as TabConfig[]);
+  const tabs     = orderTabs((await redisGet<TabConfig[]>("tabs")) ?? (tabsDefault as TabConfig[]));
   const types    = (await redisGet<AssetTypeConfig[]>("types"))  ?? (typesDefault  as AssetTypeConfig[]);
   const settings = (await redisGet<{ siteTitle: string; siteSubtitle: string }>("settings")) ?? (settingsDefault as { siteTitle: string; siteSubtitle: string });
 
+  const featured     = featuredKey(tabs);
   const activeTabKey = params.tab ?? tabs[0]?.key ?? "";
   const activeTab    = tabs.find((t) => t.key === activeTabKey) ?? tabs[0];
 
@@ -66,7 +67,7 @@ export default async function Home({
             const count    = tab.showAll ? assets.length : assets.filter((a) => a.audience.includes(tab.key)).length;
             const isActive = activeTab.key === tab.key;
             return (
-              <a key={tab.key} href={`?tab=${tab.key}`} className={`tab-pill ${isActive ? "is-active" : ""}`}
+              <a key={tab.key} href={`?tab=${tab.key}`} className={`tab-pill ${isActive ? "is-active" : ""} ${tab.key === featured ? "is-featured" : ""}`}
                 aria-current={isActive ? "page" : undefined}>
                 <span className="icon-ring"><BrandIcon icon={tab.icon} emoji={tab.emoji} size={16} /></span>
                 <span>{tab.label}</span>

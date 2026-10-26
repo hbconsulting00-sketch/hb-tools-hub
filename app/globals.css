@@ -75,6 +75,7 @@
   /* Tabs */
   --tab-bg: linear-gradient(160deg, rgba(58,1,92,0.6), rgba(34,1,53,0.55));
   --tab-border: rgba(201,167,245,0.2);
+  --tab-solid: #220135;
   --tab-text: #DCD0EC;
   --tab-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 14px rgba(5,0,10,0.4);
   --tab-active-shadow:
@@ -155,6 +156,7 @@ html.light {
 
   --tab-bg: linear-gradient(165deg, #FFFFFF, rgba(255,255,255,0.86));
   --tab-border: rgba(111,44,136,0.14);
+  --tab-solid: #FFFFFF;
   --tab-text: #3A2A50;
   --tab-shadow: inset 0 1px 0 #FFFFFF, 0 4px 14px rgba(58,1,92,0.08);
   --tab-active-shadow:
@@ -596,3 +598,20 @@ html.light .card-glass::after { background: radial-gradient(circle, rgba(201,167
 }
 .link-row:hover { background: var(--ghost-hover); border-color: var(--card-border-hover); transform: translateX(-2px); }
 .link-host { color: var(--text-muted); font-family: 'Montserrat', sans-serif; }
+
+/* Featured tab ("מה חדש" by default): Aurora gradient outline + soft sky glow */
+.tab-pill.is-featured {
+  border: 1.5px solid transparent;
+  /* Opaque fill under the glass so the gradient shows only as the outline */
+  background:
+    var(--tab-bg) padding-box,
+    linear-gradient(var(--tab-solid), var(--tab-solid)) padding-box,
+    var(--grad-aurora) border-box;
+  color: var(--page-text);
+  box-shadow: var(--tab-shadow), 0 0 0 3px rgba(127,176,238,0.14), 0 0 22px rgba(127,176,238,0.28);
+}
+.tab-pill.is-featured.is-active {
+  background: var(--grad-brand) padding-box, var(--grad-aurora) border-box;
+  box-shadow: var(--tab-active-shadow), 0 0 0 3px rgba(201,167,245,0.22);
+}
+.tab-pill.is-featured .icon-ring { color: var(--hb-amber); border-color: rgba(242,169,59,0.55); }
