@@ -1,27 +1,57 @@
 [
   {
     "key": "tool",
-    "label": "כלי",
+    "label": "כלי הדרכה",
     "emoji": "🧰",
     "colorPreset": "blue",
     "behavior": "link",
-    "btnLabel": "פתח"
+    "btnLabel": "פתח",
+    "icon": "toolbox"
+  },
+  {
+    "key": "tools",
+    "label": "כלים לממונים",
+    "emoji": "📱",
+    "colorPreset": "rose",
+    "behavior": "link",
+    "btnLabel": "פתח",
+    "icon": "smartphone"
+  },
+  {
+    "key": "website",
+    "label": "אתר",
+    "emoji": "🌐",
+    "colorPreset": "amber",
+    "behavior": "link",
+    "btnLabel": "פתח אתר",
+    "icon": "globe"
+  },
+  {
+    "key": "form",
+    "label": "טופס",
+    "emoji": "📝",
+    "colorPreset": "purple",
+    "behavior": "link",
+    "btnLabel": "מלא טופס",
+    "icon": "clipboard"
   },
   {
     "key": "agent",
     "label": "סוכן",
     "emoji": "🤖",
-    "colorPreset": "purple",
+    "colorPreset": "green",
     "behavior": "link",
-    "btnLabel": "פתח סוכן"
+    "btnLabel": "פתח סוכן",
+    "icon": "bot"
   },
   {
     "key": "skill",
     "label": "סקיל",
     "emoji": "⚡",
-    "colorPreset": "green",
+    "colorPreset": "indigo",
     "behavior": "command",
-    "btnLabel": "הפעל"
+    "btnLabel": "הפעל",
+    "icon": "zap"
   },
   {
     "key": "extension",
@@ -29,22 +59,7 @@
     "emoji": "🧩",
     "colorPreset": "orange",
     "behavior": "download",
-    "btnLabel": "הורד תוסף"
-  },
-  {
-    "key": "website",
-    "label": "אתר",
-    "emoji": "🌐",
-    "colorPreset": "sky",
-    "behavior": "link",
-    "btnLabel": "פתח אתר"
-  },
-  {
-    "key": "form",
-    "label": "טופס",
-    "emoji": "📝",
-    "colorPreset": "teal",
-    "behavior": "link",
-    "btnLabel": "מלא טופס"
+    "btnLabel": "הורד תוסף",
+    "icon": "puzzle"
   }
 ]

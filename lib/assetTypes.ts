@@ -12,6 +12,8 @@ export interface AssetTypeConfig {
   key: string;
   label: string;
   emoji: string;
+  /** Line-icon key from lib/icons.tsx. When empty the emoji is shown instead. */
+  icon?: string;
   colorPreset: ColorPreset;
   behavior: TypeBehavior;
   /** Text on the main button. Ignored for `command`. */
@@ -33,6 +35,7 @@ export const UNKNOWN_TYPE: AssetTypeConfig = {
   key: "__unknown",
   label: "כלי",
   emoji: "🔗",
+  icon: "link",
   colorPreset: "blue",
   behavior: "link",
   btnLabel: "פתח",

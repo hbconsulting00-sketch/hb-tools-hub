@@ -1,6 +1,58 @@
 [
-  { "key": "instructors", "label": "כלי מדריכים", "emoji": "🎓", "colorPreset": "green",  "showAll": false },
-  { "key": "management",  "label": "הנהלה",       "emoji": "📊", "colorPreset": "indigo", "showAll": false },
-  { "key": "daily-shared","label": "יומיומי",     "emoji": "⚡", "colorPreset": "amber",  "showAll": false },
-  { "key": "studio-only", "label": "סטודיו",      "emoji": "🛠", "colorPreset": "rose",   "showAll": true  }
+  {
+    "key": "games",
+    "label": "משחק ופעילות",
+    "emoji": "🎮",
+    "icon": "gamepad",
+    "colorPreset": "violet",
+    "showAll": false
+  },
+  {
+    "key": "documents",
+    "label": "מסמכים וסיכומים",
+    "emoji": "📄",
+    "icon": "file-text",
+    "colorPreset": "blue",
+    "showAll": false
+  },
+  {
+    "key": "presentations",
+    "label": "מצגות ולומדות",
+    "emoji": "🎬",
+    "icon": "presentation",
+    "colorPreset": "purple",
+    "showAll": false
+  },
+  {
+    "key": "operations",
+    "label": "ניהול ומעקב",
+    "emoji": "⚙️",
+    "icon": "chart",
+    "colorPreset": "sky",
+    "showAll": false
+  },
+  {
+    "key": "marketing",
+    "label": "שיווק ומכירות",
+    "emoji": "🏷",
+    "icon": "megaphone",
+    "colorPreset": "amber",
+    "showAll": false
+  },
+  {
+    "key": "studio",
+    "label": "עזרי עבודה וסטודיו",
+    "emoji": "🧱",
+    "icon": "wrench",
+    "colorPreset": "indigo",
+    "showAll": false
+  },
+  {
+    "key": "news",
+    "label": "מה חדש",
+    "emoji": "🆕",
+    "icon": "sparkles",
+    "colorPreset": "violet",
+    "showAll": false
+  }
 ]

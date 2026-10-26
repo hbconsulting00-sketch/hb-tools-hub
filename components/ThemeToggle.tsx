@@ -1,5 +1,6 @@
 "use client";
 import { useCallback, useSyncExternalStore } from "react";
+import { Moon, Sun } from "lucide-react";
 
 /** The `light` class on <html> is the source of truth — read it, don't mirror it. */
 function subscribe(onChange: () => void) {
@@ -34,7 +35,7 @@ export function ThemeToggle() {
       title={isLight ? "מצב כהה" : "מצב בהיר"}
       suppressHydrationWarning
     >
-      {isLight ? "🌙" : "☀️"}
+      {isLight ? <Moon size={18} aria-hidden="true" /> : <Sun size={18} aria-hidden="true" />}
     </button>
   );
 }
