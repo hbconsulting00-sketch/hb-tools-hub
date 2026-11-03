@@ -1,0 +1,70 @@
+       else{if(regIds.has(nid))w.push('ת.ז. כבר ברישום');if(curIds.has(nid))w.push('כבר ברשימה למעלה');}
+       return '<tr><td><input data-i="'+i+'" data-f="name" value="'+esc(p.name)+'"></td>'
+        +'<td><input data-i="'+i+'" data-f="id" inputmode="numeric" style="direction:ltr;text-align:left" value="'+esc(p.id)+'"></td>'
+        +'<td class="pfw">'+esc(w.join('; '))+'</td>'
+        +'<td><button type="button" class="sec pfdel" data-i="'+i+'" title="מחיקת שורה">✕</button></td></tr>';
+     }).join('')+'</table>';
+  }
+  h+='<div style="margin-top:8px;display:flex;gap:8px"><button id="pfadd" type="button">אישור והוספה לרשימת המשתתפים</button><button id="pfcancel" type="button" class="sec">ביטול</button></div>';
+  box.innerHTML=h;
+}
+function pfAdd(){
+  if(!pfCols||pfCols.idCol<0){$('pfmsg').innerHTML='<span class="err">יש לבחור עמודת ת.ז. בשורת המיפוי לפני האישור.</span>';return}
+  const bad=[];
+  pfRows.forEach(function(p,i){
+    p.name=String(p.name).replace(/\s+/g,' ').trim();p.id=normIdCell(p.id);
+    if(!p.name||FORMULA.test(p.name)||!/^\d{5,9}$/.test(p.id))bad.push(i+1);
+  });
+  if(bad.length){$('pfmsg').innerHTML='<span class="err">שורות '+bad.join(', ')+': חסר שם או שת.ז. לא תקינה (5-9 ספרות). מתקנים בטבלה או מוחקים את השורה, ואז מאשרים שוב.</span>';return}
+  if(!pfRows.length){$('pfmsg').innerHTML='<span class="err">אין שורות להוספה.</span>';return}
+  const ta=$('people');
+  const base=ta.value.replace(/\s+$/,'');
+  ta.value=(base?base+'\n':'')+pfRows.map(function(p){return p.name+'\t'+p.id}).join('\n')+'\n';
+  const n=pfRows.length;
+  pfWb=null;pfSheets=[];pfSheetName='';pfAOA=null;pfAn=null;pfCols=null;pfRows=[];renderPf();
+  $('pfmsg').innerHTML='<span class="ok">נוספו '+n+' משתתפים לרשימה למעלה. אפשר להפיק תצוגה מקדימה ולבדוק מול המקור.</span>';
+  ta.dispatchEvent(new Event('input',{bubbles:true}));
+}
+$('peoplefile').onchange=async e=>{
+  const f=e.target.files[0];e.target.value='';
+  if(!f)return;
+  pfWb=null;pfSheets=[];pfSheetName='';pfAOA=null;pfAn=null;pfCols=null;pfRows=[];renderPf();
+  $('pfmsg').innerHTML='';
+  if(!/\.(xlsx|xls|csv)$/i.test(f.name)){$('pfmsg').innerHTML='<span class="err">נתמכים קבצי ‎.xlsx, ‎.xls, ‎.csv בלבד.</span>';return}
+  if(f.size>10e6){$('pfmsg').innerHTML='<span class="err">הקובץ גדול מדי (מעל 10MB).</span>';return}
+  try{
+    const buf=await f.arrayBuffer();let aoa;
+    if(/\.csv$/i.test(f.name)){
+      let txt;
+      try{txt=new TextDecoder('utf-8',{fatal:true}).decode(buf)}catch(_){txt=new TextDecoder('windows-1255').decode(buf)}
+      aoa=parseCSV(txt.replace(/^\uFEFF/,''));pfSheets=[];
+    }else{
+      pfWb=XLSX.read(buf,{type:'array'});
+      pfSheets=pfWb.SheetNames.slice();pfSheetName=pfSheets[0];
+      aoa=pfSheetAOA(pfSheetName);
+    }
+    pfFileName=f.name;pfAOA=aoa;
+    const an=analyzeAOA(aoa);
+    if(an.err){$('pfmsg').innerHTML='<span class="err">'+esc(an.err)+'</span>';return}
+    pfAn=an;pfCols={headerRow:an.headerRow,nameCol:an.nameCol,idCol:an.idCol};
+    pfExtract();renderPf();pfMsgReview();
+  }catch(err){
+    pfWb=null;pfSheets=[];pfSheetName='';pfAOA=null;pfAn=null;pfCols=null;pfRows=[];renderPf();
+    $('pfmsg').innerHTML='<span class="err">לא הצלחתי לקרוא את הקובץ. נתמכים ‎.xlsx, ‎.xls, ‎.csv.</span>';
+  }
+};
+$('pfreview').addEventListener('input',e=>{const t=e.target;if(t.dataset&&t.dataset.i!==undefined&&t.dataset.f&&pfRows[+t.dataset.i])pfRows[+t.dataset.i][t.dataset.f]=t.value});
+$('pfreview').addEventListener('change',e=>{
+  const t=e.target;
+  if(t.id==='pfsheet'&&pfWb){pfSheetName=t.value;pfAOA=pfSheetAOA(pfSheetName);const an=analyzeAOA(pfAOA);if(an.err){$('pfmsg').innerHTML='<span class="err">'+esc(an.err)+'</span>';pfAn=null;renderPf();return}pfAn=an;pfCols={headerRow:an.headerRow,nameCol:an.nameCol,idCol:an.idCol};pfExtract();renderPf();pfMsgReview();return}
+  if(t.id==='pfname'&&pfCols){pfCols.nameCol=+t.value;pfExtract();renderPf();pfMsgReview();return}
+  if(t.id==='pfid'&&pfCols){pfCols.idCol=+t.value;pfExtract();renderPf();pfMsgReview();return}
+});
+$('pfreview').addEventListener('click',e=>{
+  const d=e.target.closest('.pfdel');
+  if(d){pfRows.splice(+d.dataset.i,1);renderPf();return}
+  if(e.target.id==='pfcancel'){pfWb=null;pfSheets=[];pfSheetName='';pfAOA=null;pfAn=null;pfCols=null;pfRows=[];renderPf();$('pfmsg').innerHTML='';return}
+  if(e.target.id==='pfadd')pfAdd();
+});
+
+</script></body></html>
